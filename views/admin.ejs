@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" type="text/css" href="/site.css">
+</head>
+
+<body>
+    <div class="center">
+        <% if(studentChoices.length>0){ %>
+            <div class="choice">
+                <h2>Students With Selections</h2>
+                <table id="tb">
+                    <tr>
+                        <th>Student</th>
+                        <th>Choice 1</th>
+                        <th>Choice 2</th>
+                        <th>Choice 3</th>
+                    </tr>
+                    <% for (let i=0; i < studentChoices.length; i++) { %>
+                        <tr>
+                            <td>
+                                <%= studentChoices[i][0] %>
+                            </td>
+                            <td>
+                                <%= studentChoices[i][1][0] %>
+                            </td>
+                            <td>
+                                <%= studentChoices[i][1][1] %>
+                            </td>
+                            <td>
+                                <%= studentChoices[i][1][2] %>
+                            </td>
+                        </tr>
+                        <% } %>
+                </table>
+            </div>
+            <br>
+            <hr>
+            <% } %>
+                <% if(unselectedStudents.length>0){ %>
+                    <div class="nochoices">
+                        <h2>Students With No Selections</h2>
+                        <table id="tb">
+                            <tr>
+                                <th>Student</th>
+                            </tr>
+                            <% for (let i=0; i < unselectedStudents.length; i++) { %>
+                                <tr>
+                                    <td>
+                                        <%= unselectedStudents[i].email %>
+                                    </td>
+                                </tr>
+                                <% } %>
+                        </table>
+                    </div>
+                    <% } %>
+                    <br>
+                        <div style="display: flex;">
+                            <form style="flex: 1;" action="/allocate" method="post">
+                                <input type="submit" value="Allocate">
+                            </form>
+                            <form style="flex: 1;" action="/admin/showGroups" method="post">
+                                <input type="submit" value="Show Groups">
+                            </form>
+                        </div>
+    </div>
+</body>
+
+</html>

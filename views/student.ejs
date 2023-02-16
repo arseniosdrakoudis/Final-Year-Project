@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student</title>
+    <link rel="stylesheet" type="text/css" href="/site.css">
+</head>
+
+<body>
+    <div class="center">
+        <h1>Select Topics</h1>
+        <form action="/student" method="post">
+            <table id="tb">
+                <tbody>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Choice</th>
+                    </tr>
+                    <% topics.forEach(function(topic) { %>
+                        <tr>
+                            <td>
+                                <%= topic.name %>
+                            </td>
+                            <td>
+                                <select id="<%= topic.name %>" name="<%= topic.name %>"
+                                    onchange="updateDropdownBoxes(this)">
+                                    <option value="-">-</option>
+                                    <% for (let i=1; i <=3; i++) { %>
+                                        <option value="<%= i %>" <%=(selections.find(selection=> selection.topic ===
+                                            topic.name)&& selections.find(selection => selection.topic ===
+                                            topic.name).choice === i) ? 'selected' : '' %> <%=
+                                                selectedNumbers.includes(i) ? 'disabled' : '' %>><%= i %>
+                                        </option>
+                                        <% } %>
+                                </select>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+            <label id="message" style="color: green;">
+                <%= message %>
+            </label>
+            <br>
+            <br>
+            <input type="submit" value="Submit" onclick="return validateSelection()">
+        </form>
+    </div>
+</body>
+
+<script>
+    let selectedNumbers = [];
+
+    function updateDropdownBoxes(dropdown) {
+        let selectedNumber = dropdown.value;
+        let previousValue = dropdown.getAttribute("data-previous-value");
+        if (previousValue && previousValue !== '-') {
+            let index = selectedNumbers.indexOf(previousValue);
+            if (index !== -1) {
+                selectedNumbers.splice(index, 1);
+            }
+        }
+
+        if (selectedNumber !== '-') {
+            selectedNumbers.push(selectedNumber);
+        }
+        dropdown.setAttribute("data-previous-value", selectedNumber);
+
+        let dropdownBoxes = document.querySelectorAll("select");
+        dropdownBoxes.forEach(function (d) {
+            let options = d.querySelectorAll("option");
+            options.forEach(function (o) {
+                if (selectedNumbers.includes(o.value)) {
+                    o.disabled = true;
+                } else {
+                    o.disabled = false;
+                }
+            });
+        });
+    }
+
+    function runUpdateDropdownBoxesOnPageLoad() {
+        let dropdownBoxes = document.querySelectorAll("select");
+        dropdownBoxes.forEach(function (dropdown) {
+            updateDropdownBoxes(dropdown);
+        });
+    }
+
+    window.addEventListener("load", function () {
+        runUpdateDropdownBoxesOnPageLoad();
+    });
+
+    function validateSelection() {
+        if (selectedNumbers.length !== 3) {
+            document.getElementById("message").innerHTML = "You must select 3 topics";
+            document.getElementById("message").style.color = "red";
+            return false;
+        }
+
+        document.getElementById("message").innerHTML = "";
+
+        let dropdownBoxes = document.querySelectorAll("select");
+        dropdownBoxes.forEach(function (dropdown) {
+            let options = dropdown.querySelectorAll("option");
+            options.forEach(function (option) {
+                option.disabled = false;
+            });
+        });
+
+        return true;
+    }
+
+</script>
+
+</html>

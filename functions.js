@@ -253,12 +253,7 @@ async function insertStudentToGroup(student, group) {
     console.error(error);
   }
 }
-async function findStudentWithAlternativeForTopic(
-  choicesPerTopic,
-  selectedStudents,
-  studentChoices,
-  topic
-) {
+async function findStudentWithAlternativeForTopic(choicesPerTopic, selectedStudents, studentChoices, topic) {
   let studentsWithTopic = [];
   for (var i = 0; i < selectedStudents.length; i++) {
     if (selectedStudents[i][1][0] == topic) {
@@ -266,32 +261,18 @@ async function findStudentWithAlternativeForTopic(
     }
   }
   for (var i = 0; i < studentsWithTopic.length; i++) {
-    let index = choicesPerTopic.findIndex(
-      (choice) => choice[0] === studentsWithTopic[i][1][1]
-    );
+    let index = choicesPerTopic.findIndex((choice) => choice[0] === studentsWithTopic[i][1][1]);
     let numOfStudents = choicesPerTopic[index][1];
     if (numOfStudents != 6 && numOfStudents > 3) {
-      return [
-        studentChoices.findIndex(
-          (student) => student[0] === studentsWithTopic[i][0]
-        ),
-        1,
-      ];
+      return [studentChoices.findIndex((student) => student[0] === studentsWithTopic[i][0]), 1];
     }
   }
 
   for (var i = 0; i < studentsWithTopic.length; i++) {
-    let index = choicesPerTopic.findIndex(
-      (choice) => choice[0] === studentsWithTopic[i][1][2]
-    );
+    let index = choicesPerTopic.findIndex((choice) => choice[0] === studentsWithTopic[i][1][2]);
     let numOfStudents = choicesPerTopic[index][1];
     if (numOfStudents != 6 && numOfStudents > 3) {
-      return [
-        studentChoices.findIndex(
-          (student) => student[0] === studentsWithTopic[i][0]
-        ),
-        2,
-      ];
+      return [studentChoices.findIndex((student) => student[0] === studentsWithTopic[i][0]), 2];
     }
   }
 
@@ -301,10 +282,8 @@ async function findStudentWithAlternativeForTopic(
 async function findStudentWithAlternative(studentChoices, selectedStudents) {
   for (var choice = 0; choice < 3; choice++) {
     for (var i = 0; i < selectedStudents.length; i++) {
-      let student = studentChoices.findIndex(
-        (student) => student[0] == selectedStudents[i][0]
-      );
-      if (studentChoices[student][1] == selectedStudents[i][1][choice]) {
+      let student = studentChoices.findIndex((student) => student[0] == selectedStudents[i][0]);
+      if (studentChoices[student][1] != selectedStudents[i][1][choice]) {
         return [student, choice];
       }
     }
@@ -312,12 +291,7 @@ async function findStudentWithAlternative(studentChoices, selectedStudents) {
   return [-1, -1];
 }
 
-async function dealWithTopicsOf7(
-  choicesPerTopic,
-  unselectedStudents,
-  selectedStudents,
-  studentChoices
-) {
+async function dealWithTopicsOf7(choicesPerTopic, unselectedStudents, selectedStudents, studentChoices) {
   let index = choicesPerTopic.findIndex((topic) => topic[1] == 7);
   while (index != -1) {
     if (unselectedStudents.length != 0) {
@@ -326,17 +300,14 @@ async function dealWithTopicsOf7(
       unselectedStudents.splice(0, 1);
       choicesPerTopic[index][1]++;
     } else {
-      let [studentToMove, newTopicChoice] =
-        await findStudentWithAlternativeForTopic(
-          choicesPerTopic,
-          selectedStudents,
-          studentChoices,
-          choicesPerTopic[index][0]
-        );
+      let [studentToMove, newTopicChoice] = await findStudentWithAlternativeForTopic(
+        choicesPerTopic,
+        selectedStudents,
+        studentChoices,
+        choicesPerTopic[index][0]
+      );
       if (studentToMove == -1) {
-        studentToMove = studentChoices.findIndex(
-          (student) => student[1] == choicesPerTopic[index][0]
-        );
+        studentToMove = studentChoices.findIndex((student) => student[1] == choicesPerTopic[index][0]);
         unselectedStudents.push(studentChoices[studentToMove][0]);
         studentChoices.splice(studentToMove, 1);
         choicesPerTopic[index][1]--;
@@ -344,34 +315,19 @@ async function dealWithTopicsOf7(
         let selectedStudentsIndex = selectedStudents.findIndex(
           (student) => student[0] == studentChoices[studentToMove][0]
         );
-        let newTopic =
-          selectedStudents[selectedStudentsIndex][1][newTopicChoice];
+        let newTopic = selectedStudents[selectedStudentsIndex][1][newTopicChoice];
         studentChoices[studentToMove][1] = newTopic;
         choicesPerTopic[index][1]--;
-        choicesPerTopic[
-          choicesPerTopic.findIndex((topic) => topic[0] == newTopic)
-        ][1]++;
+        choicesPerTopic[choicesPerTopic.findIndex((topic) => topic[0] == newTopic)][1]++;
       }
     }
     index = choicesPerTopic.findIndex((topic) => topic[1] == 7);
   }
-  return [
-    choicesPerTopic,
-    unselectedStudents,
-    selectedStudents,
-    studentChoices,
-  ];
+  return [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices];
 }
 
-async function dealWithTopicsOfLessThanGroupMin(
-  choicesPerTopic,
-  unselectedStudents,
-  selectedStudents,
-  studentChoices
-) {
-  let index = choicesPerTopic.findIndex(
-    (topic) => topic[1] <= 3 && topic[1] != 0
-  );
+async function dealWithTopicsOfLessThanGroupMin(choicesPerTopic, unselectedStudents, selectedStudents, studentChoices) {
+  let index = choicesPerTopic.findIndex((topic) => topic[1] <= 3 && topic[1] != 0);
   while (index != -1) {
     if (unselectedStudents.length + choicesPerTopic[index][1] >= 4) {
       let topic = choicesPerTopic[index][0];
@@ -382,17 +338,14 @@ async function dealWithTopicsOfLessThanGroupMin(
       let topic = choicesPerTopic[index][0];
       let student = studentChoices.findIndex((student) => student[1] == topic);
       while (student != -1) {
-        let [studentToMove, newTopicChoice] =
-          await findStudentWithAlternativeForTopic(
-            choicesPerTopic,
-            selectedStudents,
-            studentChoices,
-            choicesPerTopic[index][0]
-          );
+        let [studentToMove, newTopicChoice] = await findStudentWithAlternativeForTopic(
+          choicesPerTopic,
+          selectedStudents,
+          studentChoices,
+          choicesPerTopic[index][0]
+        );
         if (studentToMove == -1) {
-          studentToMove = studentChoices.findIndex(
-            (student) => student[1] == choicesPerTopic[index][0]
-          );
+          studentToMove = studentChoices.findIndex((student) => student[1] == choicesPerTopic[index][0]);
           unselectedStudents.push(studentChoices[studentToMove][0]);
           studentChoices.splice(studentToMove, 1);
           choicesPerTopic[index][1]--;
@@ -400,13 +353,10 @@ async function dealWithTopicsOfLessThanGroupMin(
           let selectedStudentsIndex = selectedStudents.findIndex(
             (student) => student[0] == studentChoices[studentToMove][0]
           );
-          let newTopic =
-            selectedStudents[selectedStudentsIndex][1][newTopicChoice];
+          let newTopic = selectedStudents[selectedStudentsIndex][1][newTopicChoice];
           studentChoices[studentToMove][1] = newTopic;
           choicesPerTopic[index][1]--;
-          choicesPerTopic[
-            choicesPerTopic.findIndex((topic) => topic[0] == newTopic)
-          ][1]++;
+          choicesPerTopic[choicesPerTopic.findIndex((topic) => topic[0] == newTopic)][1]++;
         }
 
         student = studentChoices.findIndex((student) => student[1] == topic);
@@ -415,21 +365,11 @@ async function dealWithTopicsOfLessThanGroupMin(
         }
       }
     }
-    index = choicesPerTopic.findIndex(
-      (topic) => topic[1] <= 3 && topic[1] != 0
-    );
+    index = choicesPerTopic.findIndex((topic) => topic[1] <= 3 && topic[1] != 0);
   }
-  return [
-    choicesPerTopic,
-    unselectedStudents,
-    selectedStudents,
-    studentChoices,
-  ];
+  return [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices];
 }
-async function createChoicesPerTopicAndStudentChoices(
-  topics,
-  selectedStudents
-) {
+async function createChoicesPerTopicAndStudentChoices(topics, selectedStudents) {
   let choicesPerTopic = [];
   let studentChoices = [];
   for (var i = 0; i < topics.length; i++) {
@@ -437,9 +377,7 @@ async function createChoicesPerTopicAndStudentChoices(
   }
 
   for (var i = 0; i < selectedStudents.length; i++) {
-    let topicIndex = choicesPerTopic.findIndex(
-      (group) => group[0] === selectedStudents[i][1][0]
-    );
+    let topicIndex = choicesPerTopic.findIndex((group) => group[0] === selectedStudents[i][1][0]);
     choicesPerTopic[topicIndex][1]++;
     studentChoices.push([selectedStudents[i][0], selectedStudents[i][1][0]]);
   }
@@ -455,68 +393,85 @@ async function areAllSpecialCases(choicesPerTopic) {
   return true;
 }
 
-// 1 2 3 7
+async function findTopicToAddUnselected(choicesPerTopic, unselectedStudents) {
+  for (let i = 0; i < choicesPerTopic.length; i++) {
+    if (choicesPerTopic[i][1] == 4) {
+      return [i, 1];
+    } else if (choicesPerTopic[i][1] % 5 <= unselectedStudents.length && choicesPerTopic[i][1] % 5 != 0) {
+      return [i, choicesPerTopic[i][1] % 5];
+    }
+  }
+  for (let i = 0; i < choicesPerTopic.length; i++) {
+    if (choicesPerTopic[i][1] != 6) {
+      return [i, unselectedStudents.length];
+    }
+  }
+
+  return [-1, -1];
+}
+
+async function dealWithUnselectedStudents(choicesPerTopic, unselectedStudents, selectedStudents, studentChoices) {
+  while (unselectedStudents.length != 0) {
+    if (unselectedStudents.length == 1 && (await areAllSpecialCases(choicesPerTopic))) {
+      let [student, choice] = await findStudentWithAlternative(studentChoices, selectedStudents);
+      let newTopic = selectedStudents[student][1][choice];
+      let oldTopic = studentChoices[student][1];
+      studentChoices[student][1] = newTopic;
+      choicesPerTopic[choicesPerTopic.findIndex((topic) => topic[0] == oldTopic)][1]--;
+      studentChoices.push([unselectedStudents[0], newTopic]);
+      unselectedStudents.splice(0, 1);
+      choicesPerTopic[choicesPerTopic.findIndex((topic) => topic[0] == newTopic)][1] += 2;
+    } else {
+      let [topic, amount] = await findTopicToAddUnselected(choicesPerTopic, unselectedStudents);
+
+      choicesPerTopic[topic][1] += amount;
+      for (let i = 0; i < amount; i++) {
+        studentChoices.push([unselectedStudents[i], choicesPerTopic[topic][0]]);
+      }
+      unselectedStudents.splice(0, amount);
+    }
+  }
+  return [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices];
+}
+
 async function createChoices(topics, selectedStudents, unselectedStudents) {
-  let [choicesPerTopic, studentChoices] =
-    await createChoicesPerTopicAndStudentChoices(topics, selectedStudents);
+  let [choicesPerTopic, studentChoices] = await createChoicesPerTopicAndStudentChoices(topics, selectedStudents);
 
   console.log("\n\nInitial");
   console.log(choicesPerTopic);
   console.log("selected: " + studentChoices.length);
   console.log("unselected: " + unselectedStudents.length);
 
-  [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices] =
-    await dealWithTopicsOf7(
-      choicesPerTopic,
-      unselectedStudents,
-      selectedStudents,
-      studentChoices
-    );
+  [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices] = await dealWithTopicsOf7(
+    choicesPerTopic,
+    unselectedStudents,
+    selectedStudents,
+    studentChoices
+  );
 
   console.log("\n\nAfter Dealing With Special Case");
   console.log(choicesPerTopic);
   console.log("selected: " + studentChoices.length);
   console.log("unselected: " + unselectedStudents.length);
 
-  [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices] =
-    await dealWithTopicsOfLessThanGroupMin(
-      choicesPerTopic,
-      unselectedStudents,
-      selectedStudents,
-      studentChoices
-    );
+  [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices] = await dealWithTopicsOfLessThanGroupMin(
+    choicesPerTopic,
+    unselectedStudents,
+    selectedStudents,
+    studentChoices
+  );
 
   console.log("\n\nAfter Dealing With Less Than Group Min");
   console.log(choicesPerTopic);
   console.log("selected: " + studentChoices.length);
   console.log("unselected: " + unselectedStudents.length);
 
-  while (unselectedStudents.length != 0) {
-    if (
-      unselectedStudents.length == 1 &&
-      (await areAllSpecialCases(choicesPerTopic))
-    ) {
-      let [student, choice] = await findStudentWithAlternative(
-        studentChoices,
-        selectedStudents
-      );
-      let oldTopic = studentChoices[student][1];
-      studentChoices[student][1] =
-        selectedStudents[
-          selectedStudents.findIndex(
-            (st) => st[0] == studentChoices[student][0]
-          )
-        ][1][choice];
-      choicesPerTopic[
-        choicesPerTopic.findIndex((topic) => topic[0] == oldTopic)
-      ][1]--;
-      studentChoices.push(unselectedStudents[0], studentChoices[student][1]);
-      unselectedStudents.splice(0, 1);
-      choicesPerTopic[studentChoices[student][1]][1] += 2;
-    } else if (await areAllSpecialCases(choicesPerTopic)) {
-      studentChoices.push();
-    }
-  }
+  [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices] = await dealWithUnselectedStudents(
+    choicesPerTopic,
+    unselectedStudents,
+    selectedStudents,
+    studentChoices
+  );
 
   console.log("\n\nDeal With Unselelected");
   console.log(choicesPerTopic);
@@ -538,11 +493,7 @@ async function allocate(selectedStudents, unselectedStudents) {
     unallocateStudents.push(unselectedStudents[i].email);
   }
 
-  let studentChoices = await createChoices(
-    topics,
-    selectedStudents,
-    unselectedStudents
-  );
+  let studentChoices = await createChoices(topics, selectedStudents, unselectedStudents);
 }
 
 module.exports = {

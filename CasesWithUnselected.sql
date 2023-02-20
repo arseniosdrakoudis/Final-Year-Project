@@ -88,7 +88,7 @@ INSERT INTO User VALUES
 ('test38@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student'),
 ('test39@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student'),
 ('test40@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student'),
-('test40@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student');
+('test41@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student');
 
 INSERT INTO Topic VALUES
 (1,'Topic 1'),

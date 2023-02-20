@@ -394,15 +394,22 @@ async function areAllSpecialCases(choicesPerTopic) {
 }
 
 async function findTopicToAddUnselected(choicesPerTopic, unselectedStudents) {
+  let idealsize = 5;
   for (let i = 0; i < choicesPerTopic.length; i++) {
-    if (choicesPerTopic[i][1] == 4) {
+    if (choicesPerTopic[i][1] == idealsize - 1) {
       return [i, 1];
-    } else if (choicesPerTopic[i][1] % 5 <= unselectedStudents.length && choicesPerTopic[i][1] % 5 != 0) {
-      return [i, choicesPerTopic[i][1] % 5];
     }
   }
   for (let i = 0; i < choicesPerTopic.length; i++) {
-    if (choicesPerTopic[i][1] != 6) {
+    if (
+      idealsize - (choicesPerTopic[i][1] % idealsize) <= unselectedStudents.length &&
+      choicesPerTopic[i][1] % idealsize != 0
+    ) {
+      return [i, idealsize - (choicesPerTopic[i][1] % idealsize)];
+    }
+  }
+  for (let i = 0; i < choicesPerTopic.length; i++) {
+    if (choicesPerTopic[i][1] != 6 && choicesPerTopic[i][1] % idealsize != 0) {
       return [i, unselectedStudents.length];
     }
   }

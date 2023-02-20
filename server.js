@@ -9,11 +9,7 @@ app.use(express.static(path.join(__dirname, "style")));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: false }));
 const { send } = require("process");
-const {
-  createGroup,
-  insertStudentToGroup,
-  getTopics,
-} = require("./functions.js");
+const { createGroup, insertStudentToGroup, getTopics } = require("./functions.js");
 const { render } = require("ejs");
 
 app.use(
@@ -91,10 +87,7 @@ app.get("/admin", async (req, res) => {
   for (let i = 0; i < selectedStudents.length; i++) {
     let student = selectedStudents[i].email;
     let choices = await functions.getSelections(student);
-    studentChoices.push([
-      student,
-      [choices[0].topic, choices[1].topic, choices[2].topic],
-    ]);
+    studentChoices.push([student, [choices[0].topic, choices[1].topic, choices[2].topic]]);
   }
   res.render("admin", {
     unselectedStudents: unselectedStudents,
@@ -109,10 +102,7 @@ app.post("/allocate", async (req, res) => {
   for (let i = 0; i < selectedStudents.length; i++) {
     let student = selectedStudents[i].email;
     let choices = await functions.getSelections(student);
-    studentChoices.push([
-      student,
-      [choices[0].topic, choices[1].topic, choices[2].topic],
-    ]);
+    studentChoices.push([student, [choices[0].topic, choices[1].topic, choices[2].topic]]);
   }
   // console.log(unselectedStudents);
   // console.log(studentChoices[0][0]);

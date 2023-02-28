@@ -161,6 +161,48 @@ async function deleteSelections(id) {
   }
 }
 
+function deleteGroupsFromDatabse() {
+  return new Promise((resolve, reject) => {
+    const query = "DELETE FROM `Group`";
+    connection.query(query, (error, results) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(results);
+    });
+  });
+}
+
+async function deleteGroups() {
+  try {
+    const results = await deleteGroupsFromDatabse();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function deleteStudentGroupsFromDatabse() {
+  return new Promise((resolve, reject) => {
+    const query = `DELETE FROM Student_Group`;
+    connection.query(query, (error, results) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(results);
+    });
+  });
+}
+
+async function deleteStudentGroups() {
+  try {
+    const results = await deleteStudentGroupsFromDatabse();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 function insertSelectionsInDatabse(id, selections) {
   return new Promise((resolve, reject) => {
     for (const [key, value] of selections) {
@@ -444,10 +486,10 @@ async function dealWithUnselectedStudents(choicesPerTopic, unselectedStudents, s
 async function createChoices(topics, selectedStudents, unselectedStudents) {
   let [choicesPerTopic, studentChoices] = await createChoicesPerTopicAndStudentChoices(topics, selectedStudents);
 
-  console.log("\n\nInitial");
-  console.log(choicesPerTopic);
-  console.log("selected: " + studentChoices.length);
-  console.log("unselected: " + unselectedStudents.length);
+  // console.log("\n\nInitial");
+  // console.log(choicesPerTopic);
+  // console.log("selected: " + studentChoices.length);
+  // console.log("unselected: " + unselectedStudents.length);
 
   [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices] = await dealWithTopicsOf7(
     choicesPerTopic,
@@ -456,10 +498,10 @@ async function createChoices(topics, selectedStudents, unselectedStudents) {
     studentChoices
   );
 
-  console.log("\n\nAfter Dealing With Special Case");
-  console.log(choicesPerTopic);
-  console.log("selected: " + studentChoices.length);
-  console.log("unselected: " + unselectedStudents.length);
+  // console.log("\n\nAfter Dealing With Special Case");
+  // console.log(choicesPerTopic);
+  // console.log("selected: " + studentChoices.length);
+  // console.log("unselected: " + unselectedStudents.length);
 
   [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices] = await dealWithTopicsOfLessThanGroupMin(
     choicesPerTopic,
@@ -468,10 +510,10 @@ async function createChoices(topics, selectedStudents, unselectedStudents) {
     studentChoices
   );
 
-  console.log("\n\nAfter Dealing With Less Than Group Min");
-  console.log(choicesPerTopic);
-  console.log("selected: " + studentChoices.length);
-  console.log("unselected: " + unselectedStudents.length);
+  // console.log("\n\nAfter Dealing With Less Than Group Min");
+  // console.log(choicesPerTopic);
+  // console.log("selected: " + studentChoices.length);
+  // console.log("unselected: " + unselectedStudents.length);
 
   [choicesPerTopic, unselectedStudents, selectedStudents, studentChoices] = await dealWithUnselectedStudents(
     choicesPerTopic,
@@ -480,15 +522,16 @@ async function createChoices(topics, selectedStudents, unselectedStudents) {
     studentChoices
   );
 
-  console.log("\n\nDeal With Unselelected");
-  console.log(choicesPerTopic);
-  console.log("selected: " + studentChoices.length);
-  console.log("unselected: " + unselectedStudents.length);
+  // console.log("\n\nDeal With Unselelected");
+  // console.log(choicesPerTopic);
+  // console.log("selected: " + studentChoices.length);
+  // console.log("unselected: " + unselectedStudents.length);
 
-  return studentChoices;
+  return [studentChoices, choicesPerTopic];
 }
 
 async function allocate(selectedStudents, unselectedStudents) {
+  let idealsize = 5;
   unselectedStudents = unselectedStudents.map((student) => student.email);
   let unallocateStudents = [];
   let groups = [];
@@ -500,7 +543,47 @@ async function allocate(selectedStudents, unselectedStudents) {
     unallocateStudents.push(unselectedStudents[i].email);
   }
 
-  let studentChoices = await createChoices(topics, selectedStudents, unselectedStudents);
+  let [studentChoices, choicesPerTopic] = await createChoices(topics, selectedStudents, unselectedStudents);
+
+  // console.log(studentChoices);
+  // console.log(choicesPerTopic);
+
+  await deleteStudentGroups();
+  await deleteGroups();
+
+  for (const topic of choicesPerTopic) {
+    while (topic[1] != 0) {
+      console.log(topic);
+      if ((topic[1] - idealsize > 3 && topic[1] - idealsize != 7) || topic[1] == 5) {
+        const group = await createGroup(topic[0]);
+        for (let i = 0; i < 5; i++) {
+          const index = studentChoices.findIndex((element) => element[1] === topic[0]);
+          const student = studentChoices[index][0];
+          await insertStudentToGroup(student, group);
+          studentChoices.splice(index, 1);
+        }
+        topic[1] = topic[1] - 5;
+      } else if (topic[1] - 4 > 3 || topic[1] == 4) {
+        const group = await createGroup(topic[0]);
+        for (let i = 0; i < 4; i++) {
+          const index = studentChoices.findIndex((element) => element[1] === topic[0]);
+          const student = studentChoices[index][0];
+          await insertStudentToGroup(student, group);
+          studentChoices.splice(index, 1);
+        }
+        topic[1] = topic[1] - 4;
+      } else if (topic[1] == 6) {
+        const group = await createGroup(topic[0]);
+        for (let i = 0; i < 6; i++) {
+          const index = studentChoices.findIndex((element) => element[1] === topic[0]);
+          const student = studentChoices[index][0];
+          await insertStudentToGroup(student, group);
+          studentChoices.splice(index, 1);
+        }
+        topic[1] = topic[1] - 6;
+      }
+    }
+  }
 }
 
 module.exports = {

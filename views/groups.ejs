@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <link rel="stylesheet" type="text/css" href="/site.css">
-</head>
-<body>
-    HI
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Panel</title>
+        <link rel="stylesheet" type="text/css" href="/site.css" />
+    </head>
+    <div class="center">
+        <% for (const group of groups) { %>
+        <table id="tb">
+            <tr>
+                <th colspan="2"><%= group[1] %> - <%= group[2] %></th>
+            </tr>
+            <% for (const studentGroup of studentGroups) { %> <% if (studentGroup[1]===group[1]) { %>
+            <tr>
+                <td><%= studentGroup[0] %></td>
+            </tr>
+            <% } %> <% } %>
+        </table>
+        <% } %>
+    </div>
+</html>

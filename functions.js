@@ -117,6 +117,56 @@ async function getTopics() {
   return topics;
 }
 
+function fetchGroups() {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM `Group`";
+    connection.query(query, (error, results) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(results);
+    });
+  });
+}
+
+async function getGroups() {
+  let groups;
+  try {
+    groups = await fetchGroups();
+  } catch (error) {
+    console.error(error);
+  }
+
+  const groupsArray = groups.map((group) => [group.id, group.name, group.topic]);
+  return groupsArray;
+}
+
+function fetchStudentGroups() {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM Student_Group";
+    connection.query(query, (error, results) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(results);
+    });
+  });
+}
+
+async function getStudentGroups() {
+  let groups;
+  try {
+    groups = await fetchStudentGroups();
+  } catch (error) {
+    console.error(error);
+  }
+  const studentGroupsArray = groups.map(({ student, group }) => [student, group]);
+
+  return studentGroupsArray;
+}
+
 function fetchSelections(studentEmail) {
   return new Promise((resolve, reject) => {
     const query = `SELECT topic, choice FROM Selection WHERE student = '${studentEmail}' ORDER BY choice ASC`;
@@ -545,15 +595,11 @@ async function allocate(selectedStudents, unselectedStudents) {
 
   let [studentChoices, choicesPerTopic] = await createChoices(topics, selectedStudents, unselectedStudents);
 
-  // console.log(studentChoices);
-  // console.log(choicesPerTopic);
-
   await deleteStudentGroups();
   await deleteGroups();
 
   for (const topic of choicesPerTopic) {
     while (topic[1] != 0) {
-      console.log(topic);
       if ((topic[1] - idealsize > 3 && topic[1] - idealsize != 7) || topic[1] == 5) {
         const group = await createGroup(topic[0]);
         for (let i = 0; i < 5; i++) {
@@ -563,6 +609,15 @@ async function allocate(selectedStudents, unselectedStudents) {
           studentChoices.splice(index, 1);
         }
         topic[1] = topic[1] - 5;
+      } else if (topic[1] - 6 > 3 || topic[1] == 6) {
+        const group = await createGroup(topic[0]);
+        for (let i = 0; i < 6; i++) {
+          const index = studentChoices.findIndex((element) => element[1] === topic[0]);
+          const student = studentChoices[index][0];
+          await insertStudentToGroup(student, group);
+          studentChoices.splice(index, 1);
+        }
+        topic[1] = topic[1] - 6;
       } else if (topic[1] - 4 > 3 || topic[1] == 4) {
         const group = await createGroup(topic[0]);
         for (let i = 0; i < 4; i++) {
@@ -572,15 +627,6 @@ async function allocate(selectedStudents, unselectedStudents) {
           studentChoices.splice(index, 1);
         }
         topic[1] = topic[1] - 4;
-      } else if (topic[1] == 6) {
-        const group = await createGroup(topic[0]);
-        for (let i = 0; i < 6; i++) {
-          const index = studentChoices.findIndex((element) => element[1] === topic[0]);
-          const student = studentChoices[index][0];
-          await insertStudentToGroup(student, group);
-          studentChoices.splice(index, 1);
-        }
-        topic[1] = topic[1] - 6;
       }
     }
   }
@@ -597,5 +643,7 @@ module.exports = {
   insertSelections: insertSelections,
   createGroup: createGroup,
   insertStudentToGroup: insertStudentToGroup,
+  getGroups: getGroups,
+  getStudentGroups: getStudentGroups,
   allocate: allocate,
 };

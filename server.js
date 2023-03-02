@@ -112,15 +112,4 @@ app.post("/allocate", async (req, res) => {
     res.render("groups", { groups: groups, studentGroups, studentGroups });
 });
 
-app.put("/students/:id/group/:groupId", async (req, res) => {
-    const studentId = req.params.id;
-    const newGroupId = "Group " + req.params.groupId;
-
-    console.log(studentId + " " + newGroupId);
-
-    await functions.updateStudentGroups(newGroupId, studentId);
-
-    res.sendStatus(200);
-});
-
 app.listen(3000);

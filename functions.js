@@ -253,29 +253,6 @@ async function deleteStudentGroups() {
     }
 }
 
-function updateStudentGroupsFromDatabse(group, student) {
-    return new Promise((resolve, reject) => {
-        const query = 'UPDATE Student_Group SET `group` = "?" WHERE student = "?"';
-        connection.query(query, [group, student], (error, results) => {
-            if (error) {
-                console.log("error");
-                reject(error);
-                return;
-            }
-            console.log(query);
-            resolve(results);
-        });
-    });
-}
-
-async function updateStudentGroups(group, student) {
-    try {
-        const results = await updateStudentGroupsFromDatabse(group, student);
-    } catch (error) {
-        console.error(error);
-    }
-}
-
 function insertSelectionsInDatabse(id, selections) {
     return new Promise((resolve, reject) => {
         for (const [key, value] of selections) {
@@ -667,7 +644,6 @@ module.exports = {
     createGroup: createGroup,
     insertStudentToGroup: insertStudentToGroup,
     getGroups: getGroups,
-    updateStudentGroups: updateStudentGroups,
     getStudentGroups: getStudentGroups,
     allocate: allocate,
 };

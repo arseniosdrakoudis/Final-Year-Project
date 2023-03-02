@@ -1,107 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-    <body>
-        <head>
-            <meta charset="UTF-8" />
-            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>Admin Panel</title>
-            <link rel="stylesheet" type="text/css" href="/site.css" />
-        </head>
-        <div class="center">
-            <% for (const group of groups) { %>
-            <div class="group-container">
-                <table id="tb">
-                    <tr>
-                        <th colspan="2"><%= group[1] %> - <%= group[2] %></th>
-                    </tr>
-                    <% for (const studentGroup of studentGroups) { %> <% if (studentGroup[1]===group[1]) { %>
-                    <tr>
-                        <td><%= studentGroup[0] %></td>
-                        <td><button class="reassign-button" data-student="<%= studentGroup[0] %>">Reassign</button></td>
-                    </tr>
-                    <% } %> <% } %>
-                </table>
-            </div>
-            <% } %>
-        </div>
-
-        <div class="overlay"></div>
-        <div class="popup center" id="reassign-dialog" style="width: 20% !important">
-            <form>
-                <label for="new-group-select">Select a new group:</label>
-                <br />
-                <select id="new-group-select">
-                    <% for (const group of groups) { %>
-                    <option value="<%= group[0] %>"><%= group[1] %> - <%= group[2] %></option>
-                    <% } %>
-                </select>
-                <br /><br />
-                <button type="submit">Save</button>
-                <button type="button" class="cancel-button">Cancel</button>
-            </form>
-        </div>
-    </body>
-
-    <style>
-        .popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            border: 1px solid gray;
-            box-shadow: 0px 0px 5px gray;
-            z-index: 999;
-            display: none;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 998;
-            display: none;
-        }
-    </style>
-
-    <script>
-        const reassignButtons = document.querySelectorAll(".reassign-button");
-        let currentStudentId = null;
-
-        reassignButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                currentStudentId = button.dataset.student;
-                document.querySelector(".overlay").style.display = "block";
-                document.querySelector(".popup").style.display = "block";
-            });
-        });
-
-        const cancelButton = document.querySelector(".cancel-button");
-
-        cancelButton.addEventListener("click", () => {
-            document.querySelector(".overlay").style.display = "none";
-            document.querySelector(".popup").style.display = "none";
-        });
-
-        const form = document.querySelector("form");
-
-        form.addEventListener("submit", (event) => {
-            event.preventDefault();
-            const newGroupId = document.getElementById("new-group-select").value;
-            // Send a request to the server to update the student's group
-            fetch(`/students/${currentStudentId}/group/${newGroupId}`, { method: "PUT" })
-                .then(() => {
-                    // Reload the page to show the updated data
-                    location.reload();
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        });
-    </script>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Panel</title>
+        <link rel="stylesheet" type="text/css" href="/site.css" />
+    </head>
+    <div class="center">
+        <% for (const group of groups) { %>
+        <table id="tb">
+            <tr>
+                <th colspan="2"><%= group[1] %> - <%= group[2] %></th>
+            </tr>
+            <% for (const studentGroup of studentGroups) { %> <% if (studentGroup[1]===group[1]) { %>
+            <tr>
+                <td><%= studentGroup[0] %></td>
+            </tr>
+            <% } %> <% } %>
+        </table>
+        <% } %>
+    </div>
 </html>

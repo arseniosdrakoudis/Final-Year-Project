@@ -6,13 +6,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Groups</title>
         <link rel="stylesheet" type="text/css" href="/site.css" />
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     </head>
     <div class="center">
         <% for (const group of groups) { %>
         <br />
         <table id="<%= group[1] %>" ondragover="dragover(event)">
             <tr>
-                <th colspan="2"><%= group[1] %> - <%= group[2] %></th>
+                <th colspan="2">
+                    <%= group[1] %> - <%= group[2] %>
+                    <button id="delete <%= group[1] %>" onclick="deleteTable(event)" class="delete-button">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </th>
             </tr>
 
             <% for (const studentGroup of studentGroups) { %> <% if (studentGroup[1]===group[1]) { %>
@@ -81,5 +90,39 @@
                 return true;
             }
         }
+
+        function deleteTable(event) {
+            const button = event.currentTarget;
+            const table = button.closest("table");
+            if (table.rows.length != 1) {
+                return;
+            }
+            const br = table.previousElementSibling;
+            if (br.nodeName === "BR") {
+                br.parentNode.removeChild(br); // Remove the <br> element if it exists
+            }
+            table.parentNode.removeChild(table);
+            checkTables();
+        }
     </script>
+    <style>
+        .delete-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 0;
+            margin-right: 5px;
+            background-color: transparent;
+            border: none;
+            font-size: 20px;
+        }
+
+        .delete-button:active i {
+            color: white; /* color when pressed */
+        }
+
+        table th {
+            position: relative;
+        }
+    </style>
 </html>

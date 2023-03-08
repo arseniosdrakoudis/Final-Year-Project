@@ -9,29 +9,77 @@
     </head>
     <div class="center">
         <% for (const group of groups) { %>
-        <table id="<%= group[1] %>">
-            <tr ondragover="dragover(event)">
+        <br />
+        <table id="<%= group[1] %>" ondragover="dragover(event)">
+            <tr>
                 <th colspan="2"><%= group[1] %> - <%= group[2] %></th>
             </tr>
 
             <% for (const studentGroup of studentGroups) { %> <% if (studentGroup[1]===group[1]) { %>
 
-            <tr draggable="true" ondragstart="dragit(event)" ondragover="dragover(event)">
+            <tr draggable="true" ondragstart="dragit(event)">
                 <td><%= studentGroup[0] %></td>
             </tr>
             <% } %> <% } %>
         </table>
         <% } %>
+        <br />
+        <label id="message" style="color: red"> </label>
+        <div style="display: flex">
+            <form style="flex: 1" action="/saveGroups" method="post" onsubmit="return validateTables()">
+                <input type="submit" value="Save" />
+            </form>
+            <form style="flex: 1" action="/groups" method="get">
+                <input type="submit" value="Cancel" />
+            </form>
+        </div>
     </div>
     <script>
         let shadow;
         function dragit(event) {
             shadow = event.target;
         }
+
         function dragover(e) {
-            let children = Array.from(e.target.parentNode.parentNode.children);
-            if (children.indexOf(e.target.parentNode) > children.indexOf(shadow)) e.target.parentNode.after(shadow);
-            else e.target.parentNode.before(shadow);
+            let table = e.target.parentNode.parentNode;
+            table.appendChild(shadow);
+            checkTables();
+        }
+
+        function checkTables() {
+            const tables = document.getElementsByTagName("table");
+            for (let i = 0; i < tables.length; i++) {
+                const numRows = tables[i].getElementsByTagName("tr").length - 1;
+                const th = tables[i].getElementsByTagName("th")[0];
+                if (numRows > 6 || numRows < 4) {
+                    th.style.backgroundColor = "red";
+                } else {
+                    th.style.backgroundColor = "#04AA6D";
+                }
+            }
+        }
+        function validateTables() {
+            const tables = document.getElementsByTagName("table");
+            let isError = false;
+            for (let i = 0; i < tables.length; i++) {
+                const numRows = tables[i].getElementsByTagName("tr").length - 1;
+                const th = tables[i].getElementsByTagName("th")[0];
+                if (numRows > 6 || numRows < 4) {
+                    th.style.backgroundColor = "red";
+                    isError = true;
+                } else {
+                    th.style.backgroundColor = "#04AA6D";
+                }
+            }
+            const message = document.getElementById("message");
+            if (isError) {
+                message.innerHTML =
+                    "Error: Groups must be of size 4 to 6. <br>Check tables with red colors.<br /><br />";
+                return false;
+            } else {
+                message.textContent = "";
+                return true;
+            }
         }
     </script>
 </html>

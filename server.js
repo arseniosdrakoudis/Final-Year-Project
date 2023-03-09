@@ -112,7 +112,8 @@ app.post("/allocate", async (req, res) => {
 app.get("/groups", async (req, res) => {
     const groups = await getGroups();
     const studentGroups = await getStudentGroups();
-    const topics = await getTopics();
+    var topics = await getTopics();
+    topics = topics.map((topic) => topic.name);
 
     res.render("groups", { groups: groups, studentGroups, studentGroups, topics: topics });
 });

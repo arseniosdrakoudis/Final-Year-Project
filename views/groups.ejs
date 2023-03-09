@@ -17,8 +17,8 @@
         <table id="<%= group[1] %>" ondragover="dragover(event)">
             <tr>
                 <th colspan="2">
-                    <%= group[1] %> - 
-                <select id="<%= group[1] %>_topic" class="topics" name="<%= group[1] %>_topic">
+                    <input type="text" id="<%= group[1] %>_name" class="tableTitle" onkeypress="setWidthToContent(this);" name="<%= group[1] %>_name" value="<%= group[1] %>" /> - 
+                <select id="<%= group[1] %>_topic" class="tableTitle" name="<%= group[1] %>_topic">
                     <% for (const topic of topics) { %>
                         <option value="<%= topic %>" <% if (group[2] === topic) { %> selected <% } %>><%= topic %></option>
                     <% } %>
@@ -109,6 +109,29 @@
             table.parentNode.removeChild(table);
             checkTables();
         }
+        function setWidthToContent(element) {
+            const value = element.value;
+            let capitalCount = 0;
+            for (let i = 0; i < value.length; i++) {
+                if (value[i] >= 'A' && value[i] <= 'Z') {
+                    capitalCount++;
+                }
+            }
+            element.style.width = ((element.value.length + 1) * 8 + capitalCount*2.7) + 'px';
+        }
+        window.addEventListener('load', function() {
+            const inputs = document.getElementsByTagName('input');
+            for (let i = 0; i < inputs.length; i++) {
+                const input = inputs[i];
+                if (input.type === 'text' && input.classList.contains('tableTitle')) {
+                    setWidthToContent(input);
+                    input.addEventListener('input', function() {
+                        setWidthToContent(this);
+                    });
+                }
+            }
+        });
+
     </script>
     <style>
         .delete-button {
@@ -129,10 +152,16 @@
         table th {
             position: relative;
         }
-        .topics {
+        .tableTitle {
             background-color: transparent;
             color: white;
             border: none;
         }
+        input.tableTitle {
+            min-width: auto;
+            display: inline-block;
+        }
+
+
     </style>
 </html>

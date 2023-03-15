@@ -49,11 +49,7 @@ app.post("/login", async (req, res) => {
     if (password === user[0].password) {
         req.session.email = email;
         if (user[0].role === "admin") {
-            if ((await getGroupCount()) == 0) {
-                res.redirect("/selections");
-            } else {
-                res.redirect("/groups");
-            }
+            res.redirect("/home");
         }
         if (user[0].role === "student") {
             res.redirect(`/student/${email}`);
@@ -91,6 +87,10 @@ app.post("/student", async (req, res) => {
     res.redirect(`/student/${req.session.email}?message=Selection Submited`);
 });
 
+app.get("/home", async (req, res) => {
+    res.render("home");
+});
+
 app.get("/selections", async (req, res) => {
     if (req.session.email != "admin@leicester.ac.uk") {
         res.redirect("/");
@@ -121,6 +121,18 @@ app.post("/allocate", async (req, res) => {
     await functions.allocate(studentChoices, unselectedStudents);
 
     res.redirect("/groups");
+});
+
+app.get("/topics", async (req, res) => {
+    const topics = (await functions.getTopics()).map((topic) => topic.name);
+    res.render("topics", { topics: topics });
+});
+
+app.post("/saveTopics", async (req, res) => {
+    const body = req.body["topic"];
+    console.log(body);
+    const topics = (await functions.getTopics()).map((topic) => topic.name);
+    res.render("topics", { topics: topics });
 });
 
 app.get("/groups", async (req, res) => {

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            http-equiv="X-UA-Compatible"
+            content="IE=edge" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0" />
+        <title>Home</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="/site.css" />
+    </head>
+    <body>
+        <%- include('navbar.ejs') %>
+        <div class="center">
+            <h1>Instructions</h1>
+            <hr />
+
+            <br />
+            <h3>Manage Students</h3>
+            <p>Click on the <strong>Students</strong> tab to add and remove students.</p>
+            <br />
+            <h3>Manage Topics</h3>
+            <p>Click on the <strong>Topics</strong> tab to add and remove topics.</p>
+            <br />
+            <h3>View Selections</h3>
+            <p>
+                Click on the <strong>Selections</strong> tab to view the selections that each student made including the
+                students who have not yet made a selection.
+            </p>
+            <br />
+            <h3>View Groups</h3>
+            <p>
+                Click on the <strong>Groups</strong> tab to view the Groups, the topic of the Group and the student in
+                each group. Groups can only be viewed after they are first created.
+            </p>
+            <br />
+            <h3>Run Allocation</h3>
+            <p>
+                Click on the <strong>Selections</strong> tab and scroll to the bottom of the page. Click on the
+                <strong>Allocate</strong>
+                button allocate students to groups.
+            </p>
+            <br />
+            <h3>Modify Groups</h3>
+            <p>In the <strong>Groups</strong> tab you can do the following:</p>
+            <br />
+            <p>- Add a new Group by clicking the <strong>Add Group</strong> button.</p>
+            <p>- Delete a Group by clicking on the Trash Icon next to the group name. Group must be empty to delete.</p>
+            <p>- Rename a Group by clicking on its name.</p>
+            <p>- Change Group Topic by clicking on the Topic and select one of the Topics in the system.</p>
+            <p>- Change a student's Group by dragging and dropping them in another Group.</p>
+            <br />
+            <p>
+                When done modifying groups scroll to the bottom of the page and click <strong>Save</strong> to save
+                changes or <strong>Cancel</strong> to revert the changes.
+            </p>
+            <br />
+        </div>
+    </body>
+    <style>
+        p,
+        h3 {
+            text-align: left;
+        }
+    </style>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            http-equiv="X-UA-Compatible"
+            content="IE=edge" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0" />
+        <title>Topics</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="/site.css" />
+        <link
+            rel="stylesheet"
+            href="https://www.w3schools.com/w3css/4/w3.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    </head>
+    <body>
+        <%- include('navbar.ejs') %>
+        <div class="center">
+            <h1>Manage Topics</h1>
+            <form
+                action="/saveTopics"
+                method="post">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Topics</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topics-table">
+                        <% topics.forEach((topic) => { %>
+                        <tr>
+                            <td>
+                                <input
+                                    type="text"
+                                    name="topic"
+                                    class="topic"
+                                    value="<%= topic %>"
+                                    readonly />
+                                <button
+                                    id="delete <%= topic %>"
+                                    onclick="deleteTopic(event)"
+                                    class="delete-button">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <br />
+                <div class="input-container">
+                    <input
+                        type="text"
+                        id="new-topic"
+                        placeholder="New Topic" />
+                    <button onclick="addTopic(event)">Add Topic</button>
+                </div>
+                <br />
+                <div style="display: flex">
+                    <input
+                        style="flex: 1"
+                        type="submit"
+                        value="Save" />
+                    <button
+                        style="flex: 1"
+                        onclick="cancelButtonClick(event);">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </body>
+    <script>
+        function cancelButtonClick(event) {
+            event.preventDefault();
+            window.location.href = "/topics";
+        }
+        function deleteTopic(event) {
+            const button = event.target;
+            const row = button.closest("tr");
+            row.remove();
+        }
+        function addTopic() {
+            event.preventDefault();
+            const input = document.getElementById("new-topic");
+            const value = input.value;
+            if (!value) {
+                return;
+            }
+            const tbody = document.getElementById("topics-table");
+            const row = document.createElement("tr");
+
+            const cell = document.createElement("td");
+            row.appendChild(cell);
+            const name = document.createElement("input");
+            name.setAttribute("name", "topic");
+            name.setAttribute("type", "text");
+            name.setAttribute("class", "topic");
+            name.setAttribute("value", value);
+            cell.appendChild(name);
+
+            const button = document.createElement("button");
+            button.id = `delete ${value}`;
+            button.onclick = deleteTopic;
+            button.className = "delete-button";
+            const icon = document.createElement("i");
+            icon.className = "fa fa-trash";
+            button.appendChild(icon);
+
+            cell.appendChild(button);
+
+            tbody.appendChild(row);
+            input.value = "";
+        }
+    </script>
+    <style>
+        .delete-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 0;
+            margin-right: 5px;
+            background-color: transparent;
+            border: none;
+            font-size: 20px;
+        }
+        .delete-button:active i {
+            color: white;
+        }
+        .topic {
+            background-color: transparent;
+            text-align: center;
+            border: none;
+            pointer-events: none;
+        }
+        td {
+            position: relative;
+        }
+    </style>
+</html>

@@ -2,13 +2,21 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            http-equiv="X-UA-Compatible"
+            content="IE=edge" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0" />
         <title>Admin Panel</title>
-        <link rel="stylesheet" type="text/css" href="/site.css" />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="/site.css" />
     </head>
 
     <body>
+        <%- include('navbar.ejs') %>
         <div class="center">
             <% if(studentChoices.length>0){ %>
             <div class="choice">
@@ -49,11 +57,13 @@
             <% } %>
             <br />
             <div style="display: flex">
-                <form style="flex: 1" action="/allocate" method="post">
-                    <input type="submit" value="Allocate" />
-                </form>
-                <form style="flex: 1" action="/groups" method="get">
-                    <input type="submit" value="Show Groups" />
+                <form
+                    style="flex: 1"
+                    action="/allocate"
+                    method="post">
+                    <input
+                        type="submit"
+                        value="Allocate" />
                 </form>
             </div>
         </div>

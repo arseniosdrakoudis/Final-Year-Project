@@ -301,6 +301,29 @@ async function getNewGroupId() {
     return selections;
 }
 
+function fetchGroupCount() {
+    return new Promise((resolve, reject) => {
+        const query = "SELECT COUNT(*) FROM `Group`";
+        connection.query(query, (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results[0]["COUNT(*)"]);
+        });
+    });
+}
+
+async function getGroupCount() {
+    let selections;
+    try {
+        selections = await fetchGroupCount();
+    } catch (error) {
+        console.error(error);
+    }
+    return selections;
+}
+
 function createNewGroupInDatabse(topic) {
     return new Promise(async (resolve, reject) => {
         const id = await getNewGroupId();
@@ -672,4 +695,5 @@ module.exports = {
     createGroupWithName: createGroupWithName,
     deleteGroups: deleteGroups,
     deleteStudentGroups: deleteStudentGroups,
+    getGroupCount: getGroupCount,
 };

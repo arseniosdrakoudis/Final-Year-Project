@@ -9,9 +9,9 @@ body {
     border-style: solid;
     display: inline-block;
     margin: auto;
-    width: 40%;
-    border: 3px solid;
-    padding: 10px;
+    width: 50%;
+    border: none;
+    padding: 30px;
     text-align: center;
 }
 
@@ -48,6 +48,6 @@ table tr:hover {
 table th {
     padding-top: 12px;
     padding-bottom: 12px;
-    background-color: #04AA6D;
+    background-color: #04aa6d;
     color: white;
 }

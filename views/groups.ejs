@@ -22,8 +22,8 @@
     </head>
 
     <body>
+        <%- include('navbar.ejs') %>
         <div class="center">
-            
             <form
                 action="/saveGroups"
                 method="post"
@@ -47,13 +47,13 @@
                                 class="tableTitle"
                                 onkeypress="setWidthToContent(this);"
                                 name="group"
-                                value="<%= group[1].toString() %>" />
+                                value="<%= group[1] %>" />
                             <select
                                 id="<%= group[1] %>_topic"
                                 class="tableTitle"
                                 name="topic">
                                 <% for (const topic of topics) { %>
-                                    <option value="<%= topic %>" <% if (group[2] === topic) { %> selected <% } %>><%= topic %> </option> 
+                                <option value="<%= topic %>" <% if (group[2] === topic) { %> selected <% } %>><%= topic %> </option> 
                                 <% } %>
                             </select>
                             <button
@@ -71,7 +71,12 @@
                         draggable="true"
                         ondragstart="dragit(event)">
                         <td>
-                            <input class="student" id="student" name="student>" value="<%= studentGroup[0] %>" readonly />
+                            <input
+                                class="student"
+                                id="student"
+                                name="student>"
+                                value="<%= studentGroup[0] %>"
+                                readonly />
                         </td>
                     </tr>
                     <% } %> <% } %>
@@ -83,17 +88,17 @@
                     style="color: red">
                 </label>
                 <div style="display: flex">
-                <input
-                    style="flex: 1"
-                    type="submit"
-                    value="Save" />
-
-            </form>
-
-                <button style="flex: 1" onclick="window.location.href='/groups';">
-                    Cancel
-                </button>
+                    <input
+                        style="flex: 1"
+                        type="submit"
+                        value="Save" />
+                    <button
+                        style="flex: 1"
+                        onclick="cancelButtonClick(event);">
+                        Cancel
+                    </button>
                 </div>
+            </form>
         </div>
     </body>
 
@@ -114,7 +119,11 @@
             }
             const table = target.parentNode.parentNode;
             table.appendChild(shadow);
-            // checkTables();
+        }
+
+        function cancelButtonClick(event) {
+            event.preventDefault();
+            window.location.href = '/groups';
         }
 
         function checkUniqueNames() {
@@ -166,13 +175,14 @@
             }
             return returnable;
         }
-        function setStudentNames(){
-            var studentInputs = document.querySelectorAll('#student');
+        function setStudentNames() {
+            var studentInputs = document.querySelectorAll("#student");
             for (var i = 0; i < studentInputs.length; i++) {
                 var parentElement = studentInputs[i].parentNode;
-                var name = parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild.value
-                // var parentElementName = parentElement.getAttribute('data-name');
-                studentInputs[i].setAttribute('name', name);
+                var name =
+                    parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild
+                        .value;
+                studentInputs[i].setAttribute("name", name);
             }
         }
 
@@ -214,7 +224,7 @@
                 return false;
             } else {
                 message.textContent = "";
-                setStudentNames()
+                setStudentNames();
                 return true;
             }
         }
@@ -241,7 +251,6 @@
                 }
             }
             element.style.width = (element.value.length + 2) * 8 + capitalCount * 2.7 + "px";
-            // checkTables();
         }
         function addNewTable() {
             const newGroupName = "New Group";
@@ -294,7 +303,7 @@
             font-size: 20px;
         }
 
-        .student{
+        .student {
             background-color: transparent;
             text-align: center;
             border: none;

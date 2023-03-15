@@ -11,7 +11,14 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 const { send } = require("process");
-const { createGroup, insertStudentToGroup, getTopics, getGroups, getStudentGroups } = require("./functions.js");
+const {
+    createGroup,
+    insertStudentToGroup,
+    getTopics,
+    getGroups,
+    getStudentGroups,
+    getGroupCount,
+} = require("./functions.js");
 const { render } = require("ejs");
 const { Console } = require("console");
 
@@ -42,7 +49,11 @@ app.post("/login", async (req, res) => {
     if (password === user[0].password) {
         req.session.email = email;
         if (user[0].role === "admin") {
-            res.redirect("/admin");
+            if ((await getGroupCount()) == 0) {
+                res.redirect("/selections");
+            } else {
+                res.redirect("/groups");
+            }
         }
         if (user[0].role === "student") {
             res.redirect(`/student/${email}`);
@@ -80,7 +91,7 @@ app.post("/student", async (req, res) => {
     res.redirect(`/student/${req.session.email}?message=Selection Submited`);
 });
 
-app.get("/admin", async (req, res) => {
+app.get("/selections", async (req, res) => {
     if (req.session.email != "admin@leicester.ac.uk") {
         res.redirect("/");
     }
@@ -92,7 +103,7 @@ app.get("/admin", async (req, res) => {
         let choices = await functions.getSelections(student);
         studentChoices.push([student, [choices[0].topic, choices[1].topic, choices[2].topic]]);
     }
-    res.render("admin", {
+    res.render("selections", {
         unselectedStudents: unselectedStudents,
         studentChoices: studentChoices,
     });
@@ -113,6 +124,9 @@ app.post("/allocate", async (req, res) => {
 });
 
 app.get("/groups", async (req, res) => {
+    if ((await functions.getGroupCount()) == 0) {
+        res.redirect("/selections");
+    }
     const groups = await getGroups();
     const studentGroups = await getStudentGroups();
     var topics = await getTopics();

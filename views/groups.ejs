@@ -2,73 +2,194 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            http-equiv="X-UA-Compatible"
+            content="IE=edge" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0" />
         <title>Groups</title>
-        <link rel="stylesheet" type="text/css" href="/site.css" />
-        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="/site.css" />
+        <link
+            rel="stylesheet"
+            href="https://www.w3schools.com/w3css/4/w3.css" />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     </head>
-    <div class="center">
-        <% for (const group of groups) { %>
-        <br />
-        <table id="<%= group[1] %>" ondragover="dragover(event)">
-            <tr>
-                <th colspan="2">
-                    <input type="text" id="<%= group[1] %>_name" class="tableTitle" onkeypress="setWidthToContent(this);" name="<%= group[1] %>_name" value="<%= group[1] %>" /> - 
-                <select id="<%= group[1] %>_topic" class="tableTitle" name="<%= group[1] %>_topic">
-                    <% for (const topic of topics) { %>
-                        <option value="<%= topic %>" <% if (group[2] === topic) { %> selected <% } %>><%= topic %></option>
-                    <% } %>
-                </select>
-                    <button id="delete <%= group[1] %>" onclick="deleteTable(event)" class="delete-button">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </th>
-            </tr>
 
-            <% for (const studentGroup of studentGroups) { %> <% if (studentGroup[1]===group[1]) { %>
+    <body>
+        <div class="center">
+            
+            <form
+                action="/saveGroups"
+                method="post"
+                onsubmit="return validateTables()">
+                <button
+                    id="add-group-button"
+                    onclick="addNewTable()">
+                    Add Group
+                </button>
+                <br />
+                <% for (const group of groups) { %>
+                <br />
+                <table
+                    id="<%= group[1] %>"
+                    ondragover="dragover(event)">
+                    <tr>
+                        <th colspan="2">
+                            <input
+                                type="text"
+                                id="<%= group[1] %>_name"
+                                class="tableTitle"
+                                onkeypress="setWidthToContent(this);"
+                                name="group"
+                                value="<%= group[1] %>" />
+                            <select
+                                id="<%= group[1] %>_topic"
+                                class="tableTitle"
+                                name="topic">
+                                <% for (const topic of topics) { %>
+                                    <option value="<%= topic %>" <% if (group[2] === topic) { %> selected <% } %>><%= topic %> </option> 
+                                <% } %>
+                            </select>
+                            <button
+                                id="delete <%= group[1] %>"
+                                onclick="deleteTable(event)"
+                                class="delete-button">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </th>
+                    </tr>
 
-            <tr draggable="true" ondragstart="dragit(event)">
-                <td><%= studentGroup[0] %></td>
-            </tr>
-            <% } %> <% } %>
-        </table>
-        <% } %>
-        <br />
-        <label id="message" style="color: red"> </label>
-        <div style="display: flex">
-            <form style="flex: 1" action="/saveGroups" method="post" onsubmit="return validateTables()">
-                <input type="submit" value="Save" />
+                    <% for (const studentGroup of studentGroups) { %> <% if (studentGroup[1]===group[1]) { %>
+
+                    <tr
+                        draggable="true"
+                        ondragstart="dragit(event)">
+                        <td>
+                            <input class="student" id="student" name="student>" value="<%= studentGroup[0] %>" readonly />
+                        </td>
+                    </tr>
+                    <% } %> <% } %>
+                </table>
+                <% } %>
+                <br />
+                <label
+                    id="message"
+                    style="color: red">
+                </label>
+                <div style="display: flex">
+                <input
+                    style="flex: 1"
+                    type="submit"
+                    value="Save" />
+
             </form>
-            <form style="flex: 1" action="/groups" method="get">
-                <input type="submit" value="Cancel" />
-            </form>
+
+                <button style="flex: 1" onclick="window.location.href='/groups';">
+                    Cancel
+                </button>
+                </div>
         </div>
-    </div>
+    </body>
+
     <script>
+        setInterval(function () {
+            checkTables();
+        }, 100);
+
         let shadow;
         function dragit(event) {
             shadow = event.target;
         }
 
         function dragover(e) {
-            let table = e.target.parentNode.parentNode;
+            let target = e.target;
+            if (target.nodeName === "INPUT" || target.nodeName === "SELECT" || target.nodeName === "BUTTON") {
+                target = target.closest("tr");
+            }
+            const table = target.parentNode.parentNode;
             table.appendChild(shadow);
-            checkTables();
+            // checkTables();
         }
 
-        function checkTables() {
+        function checkUniqueNames() {
+            const inputs = document.getElementsByTagName("input");
+            const nonUniqueValues = new Set();
+            const values = new Set();
+
+            for (let i = 0; i < inputs.length; i++) {
+                const value = inputs[i].value;
+                if (values.has(value)) {
+                    nonUniqueValues.add(value);
+                } else {
+                    values.add(value);
+                }
+            }
+            let returnable = [];
+            for (let i = 0; i < inputs.length; i++) {
+                if (inputs[i].parentNode.nodeName === "TH") {
+                    if (nonUniqueValues.has(inputs[i].value)) {
+                        returnable.push([inputs[i].parentNode, 1]);
+                    } else {
+                        returnable.push([inputs[i].parentNode, 0]);
+                    }
+                }
+            }
+            return returnable;
+        }
+
+        function areNamesUnique() {
+            const uniqueNames = checkUniqueNames();
+            for (let i = 0; i < uniqueNames.length; i++) {
+                if (uniqueNames[i][1]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        function checkGroupSizes() {
             const tables = document.getElementsByTagName("table");
+            let returnable = [];
             for (let i = 0; i < tables.length; i++) {
                 const numRows = tables[i].getElementsByTagName("tr").length - 1;
                 const th = tables[i].getElementsByTagName("th")[0];
                 if (numRows > 6 || numRows < 4) {
-                    th.style.backgroundColor = "red";
+                    returnable.push([th, 1]);
                 } else {
-                    th.style.backgroundColor = "#04AA6D";
+                    returnable.push([th, 0]);
+                }
+            }
+            return returnable;
+        }
+        function setStudentNames(){
+            var studentInputs = document.querySelectorAll('#student');
+            for (var i = 0; i < studentInputs.length; i++) {
+                var parentElement = studentInputs[i].parentNode;
+                var name = parentElement.parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild.value
+                // var parentElementName = parentElement.getAttribute('data-name');
+                studentInputs[i].setAttribute('name', name);
+            }
+        }
+
+        function checkTables() {
+            const uniqueNames = checkUniqueNames();
+            const groupSizes = checkGroupSizes();
+
+            if (groupSizes.length !== uniqueNames.length) {
+                console.error(uniqueNames);
+                return;
+            }
+
+            for (let i = 0; i < uniqueNames.length; i++) {
+                if (groupSizes[i][1] || uniqueNames[i][1]) {
+                    uniqueNames[i][0].style.backgroundColor = "red";
+                } else {
+                    uniqueNames[i][0].style.backgroundColor = "#04AA6D";
                 }
             }
         }
@@ -79,10 +200,7 @@
                 const numRows = tables[i].getElementsByTagName("tr").length - 1;
                 const th = tables[i].getElementsByTagName("th")[0];
                 if (numRows > 6 || numRows < 4) {
-                    th.style.backgroundColor = "red";
                     isError = true;
-                } else {
-                    th.style.backgroundColor = "#04AA6D";
                 }
             }
             const message = document.getElementById("message");
@@ -90,13 +208,19 @@
                 message.innerHTML =
                     "Error: Groups must be of size 4 to 6. <br>Check tables with red colors.<br /><br />";
                 return false;
+            } else if (!areNamesUnique()) {
+                message.innerHTML =
+                    "Error: Groups must have unique names. <br>Check tables with red colors.<br /><br />";
+                return false;
             } else {
                 message.textContent = "";
+                setStudentNames()
                 return true;
             }
         }
 
         function deleteTable(event) {
+            event.preventDefault();
             const button = event.currentTarget;
             const table = button.closest("table");
             if (table.rows.length != 1) {
@@ -107,32 +231,58 @@
                 br.parentNode.removeChild(br);
             }
             table.parentNode.removeChild(table);
-            checkTables();
+            // checkTables();
         }
         function setWidthToContent(element) {
             const value = element.value;
             let capitalCount = 0;
             for (let i = 0; i < value.length; i++) {
-                if (value[i] >= 'A' && value[i] <= 'Z') {
+                if (value[i] >= "A" && value[i] <= "Z") {
                     capitalCount++;
                 }
             }
-            element.style.width = ((element.value.length + 1) * 8 + capitalCount*2.7) + 'px';
+            element.style.width = (element.value.length + 2) * 8 + capitalCount * 2.7 + "px";
+            // checkTables();
         }
-        window.addEventListener('load', function() {
-            const inputs = document.getElementsByTagName('input');
+        function addNewTable() {
+            const newGroupName = "New Group";
+
+            const firstTable = document.querySelector("table");
+            const newTable = firstTable.cloneNode(true);
+
+            newTable.id = newGroupName;
+
+            const input = newTable.querySelector("input");
+            input.value = newGroupName;
+            const select = newTable.querySelector("select");
+
+            const rows = newTable.querySelectorAll("tr");
+            for (let i = 1; i < rows.length; i++) {
+                rows[i].remove();
+            }
+            firstTable.parentNode.insertBefore(newTable, firstTable);
+
+            const br = document.createElement("br");
+            newTable.insertAdjacentElement("afterend", br);
+
+            setWidthToContent(newTable.querySelector("input[type='text']"));
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputs = document.getElementsByTagName("input");
             for (let i = 0; i < inputs.length; i++) {
-                const input = inputs[i];
-                if (input.type === 'text' && input.classList.contains('tableTitle')) {
-                    setWidthToContent(input);
-                    input.addEventListener('input', function() {
-                        setWidthToContent(this);
-                    });
+                const value = inputs[i].value;
+                let capitalCount = 0;
+                for (let i = 0; i < value.length; i++) {
+                    if (value[i] >= "A" && value[i] <= "Z") {
+                        capitalCount++;
+                    }
                 }
+                inputs[i].style.width = (inputs[i].value.length + 1) * 8 + capitalCount * 2.7 + "px";
             }
         });
-
     </script>
+
     <style>
         .delete-button {
             position: absolute;
@@ -145,8 +295,15 @@
             font-size: 20px;
         }
 
+        .student{
+            background-color: transparent;
+            text-align: center;
+            border: none;
+            pointer-events: none;
+        }
+
         .delete-button:active i {
-            color: white; /* color when pressed */
+            color: white;
         }
 
         table th {
@@ -161,7 +318,5 @@
             min-width: auto;
             display: inline-block;
         }
-
-
     </style>
 </html>

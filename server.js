@@ -6,8 +6,10 @@ const path = require("path");
 const app = express();
 
 app.use(express.static(path.join(__dirname, "style")));
+app.use(express.static(path.join(__dirname, "scripts")));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 const { send } = require("process");
 const { createGroup, insertStudentToGroup, getTopics, getGroups, getStudentGroups } = require("./functions.js");
 const { render } = require("ejs");
@@ -116,6 +118,12 @@ app.get("/groups", async (req, res) => {
     topics = topics.map((topic) => topic.name);
 
     res.render("groups", { groups: groups, studentGroups, studentGroups, topics: topics });
+});
+
+app.post("/saveGroups", async (req, res) => {
+    const body = Object.values(req.body);
+    console.log(body);
+    res.redirect("/groups");
 });
 
 app.listen(3000);

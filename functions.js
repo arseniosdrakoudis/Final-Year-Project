@@ -325,6 +325,29 @@ async function createGroup(topic) {
     return selections;
 }
 
+function createNewGroupWithNameInDatabse(name, topic) {
+    return new Promise(async (resolve, reject) => {
+        const id = await getNewGroupId();
+        const query = "INSERT INTO `Group` VALUES (?,?,?)";
+        connection.query(query, [id, name, topic], (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(name);
+        });
+    });
+}
+async function createGroupWithName(name, topic) {
+    let selections;
+    try {
+        selections = await createNewGroupWithNameInDatabse(name, topic);
+    } catch (error) {
+        console.error(error);
+    }
+    return selections;
+}
+
 function insertStudentToGroupInDatabse(student, group) {
     return new Promise((resolve, reject) => {
         const query = `INSERT INTO Student_Group VALUES (?,?)`;
@@ -646,4 +669,7 @@ module.exports = {
     getGroups: getGroups,
     getStudentGroups: getStudentGroups,
     allocate: allocate,
+    createGroupWithName: createGroupWithName,
+    deleteGroups: deleteGroups,
+    deleteStudentGroups: deleteStudentGroups,
 };

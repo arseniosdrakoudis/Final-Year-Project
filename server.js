@@ -123,6 +123,14 @@ app.get("/groups", async (req, res) => {
 app.post("/saveGroups", async (req, res) => {
     const body = Object.values(req.body);
     console.log(body);
+    await functions.deleteGroups();
+    await functions.deleteStudentGroups();
+    for (let i = 0; i < body[0].length; i++) {
+        await functions.createGroupWithName(body[0][i], body[1][i]);
+        for (let j = 0; j < body[2 + i].length; j++) {
+            await functions.insertStudentToGroup(body[2 + i][j], body[0][i]);
+        }
+    }
     res.redirect("/groups");
 });
 

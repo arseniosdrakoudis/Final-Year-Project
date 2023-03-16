@@ -131,6 +131,11 @@ app.get("/topics", async (req, res) => {
 app.post("/saveTopics", async (req, res) => {
     const body = req.body["topic"];
     console.log(body);
+    await functions.deleteTopics();
+    for (let i = 0; i < body.length; i++) {
+        await functions.insertTopic(body[i]);
+    }
+
     const topics = (await functions.getTopics()).map((topic) => topic.name);
     res.render("topics", { topics: topics });
 });

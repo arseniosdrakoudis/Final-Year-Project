@@ -117,6 +117,48 @@ async function getTopics() {
     return topics;
 }
 
+function deleteTopicsFromDatabse() {
+    return new Promise((resolve, reject) => {
+        const query = "DELETE FROM `Topic`";
+        connection.query(query, (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function deleteTopics() {
+    try {
+        const results = await deleteTopicsFromDatabse();
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function insertTopicInDatabse(topic) {
+    return new Promise((resolve, reject) => {
+        const query = `INSERT INTO Topic (name) VALUES (?)`;
+        connection.query(query, [topic], (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+        });
+        resolve();
+    });
+}
+
+async function insertTopic(topic) {
+    try {
+        await insertTopicInDatabse(topic);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 function fetchGroups() {
     return new Promise((resolve, reject) => {
         const query = "SELECT * FROM `Group`";
@@ -696,4 +738,6 @@ module.exports = {
     deleteGroups: deleteGroups,
     deleteStudentGroups: deleteStudentGroups,
     getGroupCount: getGroupCount,
+    deleteTopics: deleteTopics,
+    insertTopic: insertTopic,
 };

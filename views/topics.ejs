@@ -25,6 +25,7 @@
         <div class="center">
             <h1>Manage Topics</h1>
             <form
+                id="topic-form"
                 action="/saveTopics"
                 method="post">
                 <table>
@@ -54,13 +55,21 @@
                         <% }) %>
                     </tbody>
                 </table>
+                <label
+                    id="message"
+                    style="color: red">
+                </label>
                 <br />
                 <div class="input-container">
                     <input
                         type="text"
                         id="new-topic"
                         placeholder="New Topic" />
-                    <button onclick="addTopic(event)">Add Topic</button>
+                    <button
+                        id="addBtn"
+                        onclick="addTopic(event)">
+                        Add Topic
+                    </button>
                 </div>
                 <br />
                 <div style="display: flex">
@@ -78,6 +87,15 @@
         </div>
     </body>
     <script>
+        const form = document.getElementById("topic-form");
+
+        form.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                var input = document.getElementById("new-topic");
+                document.getElementById("addBtn").click();
+            }
+        });
         function cancelButtonClick(event) {
             event.preventDefault();
             window.location.href = "/topics";
@@ -87,11 +105,29 @@
             const row = button.closest("tr");
             row.remove();
         }
+        function setError(error) {
+            const message = document.getElementById("message");
+            message.innerHTML = error;
+        }
+        function getTopics() {
+            const topics = document.querySelectorAll("input.topic");
+            const topicList = [];
+
+            topics.forEach((topic) => {
+                topicList.push(topic.value.toUpperCase());
+            });
+
+            return topicList;
+        }
         function addTopic() {
             event.preventDefault();
             const input = document.getElementById("new-topic");
             const value = input.value;
             if (!value) {
+                return;
+            }
+            if (getTopics().includes(value.toUpperCase())) {
+                setError("Topic Already Exists");
                 return;
             }
             const tbody = document.getElementById("topics-table");

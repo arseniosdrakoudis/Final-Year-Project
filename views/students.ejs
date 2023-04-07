@@ -8,7 +8,7 @@
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0" />
-        <title>Topics</title>
+        <title>Students</title>
         <link
             rel="stylesheet"
             type="text/css"
@@ -23,30 +23,30 @@
     <body>
         <%- include('navbar.ejs') %>
         <div class="center">
-            <h1>Manage Topics</h1>
+            <h1>Manage Students</h1>
             <form
-                id="topic-form"
-                action="/saveTopics"
+                id="student-form"
+                action="/saveStudents"
                 method="post">
                 <table>
                     <thead>
                         <tr>
-                            <th>Topics</th>
+                            <th>Students</th>
                         </tr>
                     </thead>
-                    <tbody id="topics-table">
-                        <% topics.forEach((topic) => { %>
+                    <tbody id="student-table">
+                        <% students.forEach((student) => { %>
                         <tr>
                             <td>
                                 <input
                                     type="text"
-                                    name="topic"
-                                    class="topic"
-                                    value="<%= topic %>"
+                                    name="student"
+                                    class="student"
+                                    value="<%= student %>"
                                     readonly />
                                 <button
-                                    id="delete <%= topic %>"
-                                    onclick="deleteTopic(event)"
+                                    id="delete <%= student %>"
+                                    onclick="deleteStudent(event)"
                                     class="delete-button">
                                     <i class="fa fa-trash"></i>
                                 </button>
@@ -62,13 +62,13 @@
                 <br />
                 <div class="input-container">
                     <input
-                        type="text"
-                        id="new-topic"
-                        placeholder="New Topic" />
+                        type="email"
+                        id="new-student"
+                        placeholder="New Student" />
                     <button
                         id="addBtn"
-                        onclick="addTopic(event)">
-                        Add Topic
+                        onclick="addStudent(event)">
+                        Add Student
                     </button>
                 </div>
                 <br />
@@ -87,20 +87,20 @@
         </div>
     </body>
     <script>
-        const form = document.getElementById("topic-form");
+        const form = document.getElementById("student-form");
 
         form.addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
                 event.preventDefault();
-                var input = document.getElementById("new-topic");
+                var input = document.getElementById("new-student");
                 document.getElementById("addBtn").click();
             }
         });
         function cancelButtonClick(event) {
             event.preventDefault();
-            window.location.href = "/topics";
+            window.location.href = "/students";
         }
-        function deleteTopic(event) {
+        function deleteStudent(event) {
             const button = event.target;
             const row = button.closest("tr");
             row.remove();
@@ -109,42 +109,52 @@
             const message = document.getElementById("message");
             message.innerHTML = error;
         }
-        function getTopics() {
-            const topics = document.querySelectorAll("input.topic");
-            const topicList = [];
+        function getStudents() {
+            const students = document.querySelectorAll("input.student");
+            const studentList = [];
 
-            topics.forEach((topic) => {
-                topicList.push(topic.value.toUpperCase());
+            students.forEach((student) => {
+                studentList.push(student.value.toUpperCase());
             });
 
-            return topicList;
+            return studentList;
         }
-        function addTopic() {
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function addStudent() {
             event.preventDefault();
-            const input = document.getElementById("new-topic");
+            const input = document.getElementById("new-student");
             const value = input.value;
             if (!value) {
                 return;
             }
-            if (getTopics().includes(value.toUpperCase())) {
-                setError("Topic Already Exists");
+            if (getStudents().includes(value.toUpperCase())) {
+                setError("Student Already Exists");
                 return;
             }
-            const tbody = document.getElementById("topics-table");
+            if (!isValidEmail(value)) {
+                setError("Not a valid Email");
+                return;
+            }
+            const tbody = document.getElementById("student-table");
             const row = document.createElement("tr");
 
             const cell = document.createElement("td");
             row.appendChild(cell);
             const name = document.createElement("input");
-            name.setAttribute("name", "topic");
+            name.setAttribute("name", "student");
             name.setAttribute("type", "text");
-            name.setAttribute("class", "topic");
+            name.setAttribute("class", "student");
             name.setAttribute("value", value);
             cell.appendChild(name);
 
             const button = document.createElement("button");
             button.id = `delete ${value}`;
-            button.onclick = deleteTopic;
+            button.onclick = deleteStudent;
             button.className = "delete-button";
             const icon = document.createElement("i");
             icon.className = "fa fa-trash";
@@ -170,7 +180,7 @@
         .delete-button:active i {
             color: white;
         }
-        .topic {
+        .student {
             background-color: transparent;
             text-align: center;
             border: none;
@@ -179,10 +189,8 @@
             height: auto;
             word-wrap: break-word;
         }
-
         td {
             position: relative;
-            height: auto;
         }
     </style>
 </html>

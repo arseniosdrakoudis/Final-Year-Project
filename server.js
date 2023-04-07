@@ -129,8 +129,8 @@ app.get("/topics", async (req, res) => {
 });
 
 app.get("/students", async (req, res) => {
-    const topics = (await functions.getTopics()).map((topic) => topic.name);
-    res.render("topics", { topics: topics });
+    const students = (await functions.getStudents()).map((student) => student.email);
+    res.render("students", { students: students });
 });
 
 app.post("/saveTopics", async (req, res) => {

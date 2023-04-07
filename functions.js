@@ -94,6 +94,30 @@ async function getSelectedStudents() {
     return user;
 }
 
+function fetchStudents() {
+    return new Promise(async (resolve, reject) => {
+        const query = `SELECT email FROM User WHERE role = 'student'`;
+        connection.query(query, (error, results) => {
+            if (error) {
+                console.log("error");
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function getStudents() {
+    let User;
+    try {
+        user = await fetchStudents();
+    } catch (error) {
+        console.error(error);
+    }
+    return user;
+}
+
 function fetchTopics() {
     return new Promise((resolve, reject) => {
         const query = `SELECT name FROM Topic`;
@@ -740,4 +764,5 @@ module.exports = {
     getGroupCount: getGroupCount,
     deleteTopics: deleteTopics,
     insertTopic: insertTopic,
+    getStudents: getStudents,
 };

@@ -30,6 +30,14 @@ app.use(
     })
 );
 
+function requireAdmin(req, res, next) {
+    if (req.session && req.session.isAdmin) {
+        next();
+    } else {
+        res.redirect("/");
+    }
+}
+
 app.get("/", (req, res) => {
     const message = req.query.message || "";
     const email = req.query.email || "";
@@ -49,6 +57,7 @@ app.post("/login", async (req, res) => {
     if (password === user[0].password) {
         req.session.email = email;
         if (user[0].role === "admin") {
+            req.session.isAdmin = true;
             res.redirect("/home");
         }
         if (user[0].role === "student") {
@@ -92,9 +101,6 @@ app.get("/home", async (req, res) => {
 });
 
 app.get("/selections", async (req, res) => {
-    if (req.session.email != "admin@leicester.ac.uk") {
-        res.redirect("/");
-    }
     const unselectedStudents = await functions.getUnselectedStudents();
     const selectedStudents = await functions.getSelectedStudents();
     let studentChoices = [];

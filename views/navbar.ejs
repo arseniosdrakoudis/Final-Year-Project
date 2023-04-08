@@ -6,36 +6,10 @@
             name="viewport"
             content="width=device-width, initial-scale=1.0" />
         <title>Navigation Bar</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-            }
-            body {
-                font-family: Arial, sans-serif;
-                padding-top: 50px; /* Add padding to prevent the main content from being hidden by the fixed navbar */
-            }
-            .nav {
-                display: flex;
-                justify-content: flex-start; /* Align the tabs on the left side of the navbar */
-                background-color: #333;
-                padding: 10px 0;
-                position: fixed; /* Make the navbar fixed at the top */
-                top: 0;
-                left: 0;
-                width: 100%; /* Set the width to cover the entire viewport width */
-                z-index: 1000; /* Ensure the navbar stays on top of other content */
-            }
-            .nav a {
-                color: #fff;
-                text-decoration: none;
-                padding: 8px 16px;
-            }
-            .nav a:hover {
-                background-color: #ddd;
-                color: #333;
-            }
-        </style>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="/navbar.css" />
     </head>
     <body>
         <div class="nav">

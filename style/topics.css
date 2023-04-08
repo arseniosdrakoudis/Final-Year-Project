@@ -1,0 +1,27 @@
+.delete-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+    margin-right: 5px;
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+}
+.delete-button:active i {
+    color: white;
+}
+.topic {
+    background-color: transparent;
+    text-align: center;
+    border: none;
+    pointer-events: none;
+    width: 90%;
+    height: auto;
+    word-wrap: break-word;
+}
+
+td {
+    position: relative;
+    height: auto;
+}

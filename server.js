@@ -30,14 +30,6 @@ app.use(
     })
 );
 
-function requireAdmin(req, res, next) {
-    if (req.session && req.session.isAdmin) {
-        next();
-    } else {
-        res.redirect("/");
-    }
-}
-
 app.get("/", (req, res) => {
     const message = req.query.message || "";
     const email = req.query.email || "";
@@ -57,7 +49,6 @@ app.post("/login", async (req, res) => {
     if (password === user[0].password) {
         req.session.email = email;
         if (user[0].role === "admin") {
-            req.session.isAdmin = true;
             res.redirect("/home");
         }
         if (user[0].role === "student") {
@@ -96,11 +87,14 @@ app.post("/student", async (req, res) => {
     res.redirect(`/student/${req.session.email}?message=Selection Submited`);
 });
 
-app.get("/home", requireAdmin, async (req, res) => {
+app.get("/home", async (req, res) => {
     res.render("home");
 });
 
-app.get("/selections", requireAdmin, async (req, res) => {
+app.get("/selections", async (req, res) => {
+    if (req.session.email != "admin@leicester.ac.uk") {
+        res.redirect("/");
+    }
     const unselectedStudents = await functions.getUnselectedStudents();
     const selectedStudents = await functions.getSelectedStudents();
     let studentChoices = [];
@@ -115,7 +109,7 @@ app.get("/selections", requireAdmin, async (req, res) => {
     });
 });
 
-app.post("/allocate", requireAdmin, async (req, res) => {
+app.post("/allocate", async (req, res) => {
     const unselectedStudents = await functions.getUnselectedStudents();
     const selectedStudents = await functions.getSelectedStudents();
     let studentChoices = [];
@@ -129,17 +123,17 @@ app.post("/allocate", requireAdmin, async (req, res) => {
     res.redirect("/groups");
 });
 
-app.get("/topics", requireAdmin, async (req, res) => {
+app.get("/topics", async (req, res) => {
     const topics = (await functions.getTopics()).map((topic) => topic.name);
     res.render("topics", { topics: topics });
 });
 
-app.get("/students", requireAdmin, async (req, res) => {
+app.get("/students", async (req, res) => {
     const students = (await functions.getStudents()).map((student) => student.email);
     res.render("students", { students: students });
 });
 
-app.post("/saveTopics", requireAdmin, async (req, res) => {
+app.post("/saveTopics", async (req, res) => {
     const body = req.body["topic"];
     await functions.deleteTopics();
     for (let i = 0; i < body.length; i++) {
@@ -150,7 +144,7 @@ app.post("/saveTopics", requireAdmin, async (req, res) => {
     res.render("topics", { topics: topics });
 });
 
-app.get("/groups", requireAdmin, async (req, res) => {
+app.get("/groups", async (req, res) => {
     if ((await functions.getGroupCount()) == 0) {
         res.redirect("/selections");
     }
@@ -162,7 +156,7 @@ app.get("/groups", requireAdmin, async (req, res) => {
     res.render("groups", { groups: groups, studentGroups, studentGroups, topics: topics });
 });
 
-app.post("/saveGroups", requireAdmin, async (req, res) => {
+app.post("/saveGroups", async (req, res) => {
     const body = req.body;
     await functions.deleteGroups();
     await functions.deleteStudentGroups();

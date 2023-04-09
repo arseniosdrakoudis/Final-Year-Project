@@ -18,6 +18,8 @@ const {
     getGroups,
     getStudentGroups,
     getGroupCount,
+    generateToken,
+    insertStudent,
 } = require("./functions.js");
 const { render } = require("ejs");
 const { Console } = require("console");
@@ -96,6 +98,30 @@ app.post("/student", async (req, res) => {
     res.redirect(`/student/${req.session.email}?message=Selection Submited`);
 });
 
+app.get("/register/:token", async (req, res) => {
+    const token = req.params.token;
+
+    email = (await functions.getRegisteredWithToken(token)).map((student) => student.email);
+
+    if (email.length == 0) {
+        res.send("Invalid Token");
+    } else {
+        res.render("register", { email: email });
+    }
+});
+
+app.post("/register", async (req, res) => {
+    const body = req.body;
+    console.log(body);
+    const password = functions.getSHA256(body.password);
+    const email = body.email;
+
+    await functions.insertStudent(email, password);
+    await functions.deleteRegister(email);
+
+    res.redirect("/");
+});
+
 app.get("/home", async (req, res) => {
     res.render("home");
 });
@@ -134,11 +160,6 @@ app.get("/topics", async (req, res) => {
     res.render("topics", { topics: topics });
 });
 
-app.get("/students", async (req, res) => {
-    const students = (await functions.getStudents()).map((student) => student.email);
-    res.render("students", { students: students });
-});
-
 app.post("/saveTopics", async (req, res) => {
     const body = req.body["topic"];
     await functions.deleteTopics();
@@ -146,8 +167,36 @@ app.post("/saveTopics", async (req, res) => {
         await functions.insertTopic(body[i]);
     }
 
-    const topics = (await functions.getTopics()).map((topic) => topic.name);
-    res.render("topics", { topics: topics });
+    res.redirect("/topics");
+});
+
+app.get("/students", async (req, res) => {
+    const students = (await functions.getStudents()).map((student) => student.email);
+    const registered = (await functions.getRegistered()).map((student) => student.email);
+    const allStudents = students.concat(registered);
+
+    res.render("students", { students: allStudents });
+});
+
+app.post("/saveStudents", async (req, res) => {
+    const body = req.body["student"];
+    const students = (await functions.getStudents()).map((student) => student.email);
+    const registered = (await functions.getRegistered()).map((student) => student.email);
+    const allStudents = students.concat(registered);
+    const newStudents = body.filter((email) => !students.includes(email) && !registered.includes(email));
+    const deletedStudents = allStudents.filter((email) => !body.includes(email));
+
+    for (let i = 0; i < newStudents.length; i++) {
+        const token = generateToken();
+        await functions.sendEmail(newStudents[i], token);
+        await functions.insertRegister(newStudents[i], token);
+    }
+    for (let i = 0; i < deletedStudents.length; i++) {
+        await functions.deleteRegister(deletedStudents[i]);
+        await functions.deleteStudent(deletedStudents[i]);
+    }
+
+    res.redirect("/students");
 });
 
 app.get("/groups", async (req, res) => {

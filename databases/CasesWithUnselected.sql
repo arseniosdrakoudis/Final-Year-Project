@@ -10,9 +10,16 @@ CREATE TABLE `User` (
   PRIMARY KEY(email)
 );
 
+DROP TABLE IF EXISTS `Register`;
+CREATE TABLE `Register`(
+	email VARCHAR(100),
+    token VARCHAR(64)
+);
+
+
 DROP TABLE IF EXISTS `Topic`;
 CREATE TABLE `Topic` (
-	id INT,
+	id INT AUTO_INCREMENT,
     name varchar(100),
     PRIMARY KEY(id)
 );
@@ -90,12 +97,12 @@ INSERT INTO User VALUES
 ('test40@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student'),
 ('test41@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student');
 
-INSERT INTO Topic VALUES
-(1,'Topic 1'),
-(2,'Topic 2'),
-(3,'Topic 3'),
-(4,'Topic 4'),
-(5,'Topic 5');
+INSERT INTO Topic (name) VALUES
+('Topic 1'),
+('Topic 2'),
+('Topic 3'),
+('Topic 4'),
+('Topic 5');
 
 INSERT INTO Selection VALUES
 ('test1@student.le.ac.uk','Topic 1',1),

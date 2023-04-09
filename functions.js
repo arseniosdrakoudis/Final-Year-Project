@@ -2,6 +2,7 @@ const { group } = require("console");
 const crypto = require("crypto");
 const mysql = require("mysql2");
 const { resolve } = require("path");
+const nodemailer = require("nodemailer");
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -10,6 +11,29 @@ const connection = mysql.createConnection({
     password: "rootroot",
     database: "StudentAlloc",
 });
+
+let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: "ad561testuser@gmail.com", // sender's email address
+        pass: "jcgorayziychgtlg", // sender's email password
+    },
+});
+
+async function sendEmail(email, token) {
+    let info = await transporter.sendMail({
+        from: "ad561testuser@gmail.com",
+        to: email,
+        subject: "Register for Group Allocation",
+        html: `Dear Student, </br> Please 
+        <a href="http://localhost:3000/register/${token}">click here </a>
+        to register to the group allocation platform</br>
+        After you register you can access the platform from 
+        <a href="http://localhost:3000/"> http://localhost:3000/ </a>`,
+    });
+}
 
 connection.connect();
 
@@ -21,6 +45,11 @@ function getSHA256(data) {
         console.error(err);
     }
     return null;
+}
+
+function generateToken() {
+    const token = crypto.randomBytes(64).toString("hex");
+    return token;
 }
 
 function fetchUser(email) {
@@ -46,9 +75,32 @@ async function getUser(email) {
     return user;
 }
 
+function insertStudentInDatabse(email, password) {
+    return new Promise((resolve, reject) => {
+        const query = `INSERT INTO User VALUES (?,?,'student')`;
+        connection.query(query, [email, password], (error, results) => {
+            if (error) {
+                console.log(error);
+                reject(error);
+                return;
+            }
+        });
+        resolve();
+    });
+}
+
+async function insertStudent(email, password) {
+    try {
+        await insertStudentInDatabse(email, password);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 function fetchUnselectedStudents() {
     return new Promise(async (resolve, reject) => {
-        const query = `SELECT email FROM User WHERE role = 'student' AND email NOT IN (SELECT student FROM Selection)`;
+        const query = `SELECT email FROM User WHERE role = 'student' AND email NOT IN 
+        (SELECT student FROM Selection) UNION SELECT email FROM Register;`;
         connection.query(query, (error, results) => {
             if (error) {
                 console.log("error");
@@ -116,6 +168,117 @@ async function getStudents() {
         console.error(error);
     }
     return user;
+}
+
+function fetchRegistered() {
+    return new Promise(async (resolve, reject) => {
+        const query = `SELECT email FROM Register`;
+        connection.query(query, (error, results) => {
+            if (error) {
+                console.log("error");
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function getRegistered() {
+    let User;
+    try {
+        user = await fetchRegistered();
+    } catch (error) {
+        console.error(error);
+    }
+    return user;
+}
+
+function fetchRegisteredWithToken(token) {
+    return new Promise(async (resolve, reject) => {
+        const query = `SELECT email FROM Register WHERE token = ?`;
+        connection.query(query, [token], (error, results) => {
+            if (error) {
+                console.log("error");
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function getRegisteredWithToken(token) {
+    let User;
+    try {
+        user = await fetchRegisteredWithToken(token);
+    } catch (error) {
+        console.error(error);
+    }
+    return user;
+}
+
+function insertRegisterInDatabse(email, token) {
+    return new Promise((resolve, reject) => {
+        const query = `INSERT INTO Register VALUES (?,?)`;
+        connection.query(query, [email, token], (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+        });
+        resolve();
+    });
+}
+
+async function insertRegister(email, token) {
+    try {
+        await insertRegisterInDatabse(email, token);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function deleteRegisterFromDatabse(email) {
+    return new Promise((resolve, reject) => {
+        const query = "DELETE FROM `Register` WHERE email = ?";
+        connection.query(query, [email], (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function deleteRegister(email) {
+    try {
+        const results = await deleteRegisterFromDatabse(email);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function deleteStudentFromDatabse(email) {
+    return new Promise((resolve, reject) => {
+        const query = "DELETE FROM `User` WHERE email = ?";
+        connection.query(query, [email], (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function deleteStudent(email) {
+    try {
+        const results = await deleteStudentFromDatabse(email);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 function fetchTopics() {
@@ -765,4 +928,12 @@ module.exports = {
     deleteTopics: deleteTopics,
     insertTopic: insertTopic,
     getStudents: getStudents,
+    generateToken: generateToken,
+    getRegistered: getRegistered,
+    insertRegister: insertRegister,
+    sendEmail: sendEmail,
+    deleteStudent: deleteStudent,
+    deleteRegister: deleteRegister,
+    getRegisteredWithToken: getRegisteredWithToken,
+    insertStudent: insertStudent,
 };

@@ -22,6 +22,11 @@ function cancelButtonClick(event) {
     window.location.href = "/groups";
 }
 
+function emailGroups(event) {
+    event.preventDefault();
+    window.location.href = "/emailGroups";
+}
+
 function checkUniqueNames() {
     const inputs = document.getElementsByTagName("input");
     const nonUniqueValues = new Set();

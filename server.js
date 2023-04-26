@@ -10,7 +10,7 @@ app.use(express.static(path.join(__dirname, "scripts")));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-const { send } = require("process");
+// const { send } = require("process");
 const {
     createGroup,
     insertStudentToGroup,
@@ -122,11 +122,11 @@ app.post("/register", async (req, res) => {
     res.redirect("/");
 });
 
-app.get("/home", async (req, res) => {
+app.get("/home", requireAdmin, async (req, res) => {
     res.render("home");
 });
 
-app.get("/selections", async (req, res) => {
+app.get("/selections", requireAdmin, async (req, res) => {
     const unselectedStudents = await functions.getUnselectedStudents();
     const selectedStudents = await functions.getSelectedStudents();
     let studentChoices = [];
@@ -141,7 +141,7 @@ app.get("/selections", async (req, res) => {
     });
 });
 
-app.post("/allocate", async (req, res) => {
+app.post("/allocate", requireAdmin, async (req, res) => {
     const unselectedStudents = await functions.getUnselectedStudents();
     const selectedStudents = await functions.getSelectedStudents();
     let studentChoices = [];
@@ -160,7 +160,7 @@ app.get("/topics", async (req, res) => {
     res.render("topics", { topics: topics });
 });
 
-app.post("/saveTopics", async (req, res) => {
+app.post("/saveTopics", requireAdmin, async (req, res) => {
     const body = req.body["topic"];
     await functions.deleteTopics();
     for (let i = 0; i < body.length; i++) {
@@ -170,7 +170,7 @@ app.post("/saveTopics", async (req, res) => {
     res.redirect("/topics");
 });
 
-app.get("/students", async (req, res) => {
+app.get("/students", requireAdmin, async (req, res) => {
     const students = (await functions.getStudents()).map((student) => student.email);
     const registered = (await functions.getRegistered()).map((student) => student.email);
     const allStudents = students.concat(registered);
@@ -178,7 +178,7 @@ app.get("/students", async (req, res) => {
     res.render("students", { students: allStudents });
 });
 
-app.post("/saveStudents", async (req, res) => {
+app.post("/saveStudents", requireAdmin, async (req, res) => {
     const body = req.body["student"];
     const students = (await functions.getStudents()).map((student) => student.email);
     const registered = (await functions.getRegistered()).map((student) => student.email);
@@ -188,7 +188,7 @@ app.post("/saveStudents", async (req, res) => {
 
     for (let i = 0; i < newStudents.length; i++) {
         const token = generateToken();
-        await functions.sendEmail(newStudents[i], token);
+        await functions.sendRegistrationEmail(newStudents[i], token);
         await functions.insertRegister(newStudents[i], token);
     }
     for (let i = 0; i < deletedStudents.length; i++) {
@@ -199,7 +199,7 @@ app.post("/saveStudents", async (req, res) => {
     res.redirect("/students");
 });
 
-app.get("/groups", async (req, res) => {
+app.get("/groups", requireAdmin, async (req, res) => {
     if ((await functions.getGroupCount()) == 0) {
         res.redirect("/selections");
     }
@@ -211,7 +211,27 @@ app.get("/groups", async (req, res) => {
     res.render("groups", { groups: groups, studentGroups, studentGroups, topics: topics });
 });
 
-app.post("/saveGroups", async (req, res) => {
+app.get("/emailGroups", async (req, res) => {
+    const studentGroups = await getStudentGroups();
+    const groups = await getGroups();
+
+    for (var i = 0; i < studentGroups.length; i++) {
+        var studentList = [];
+        const group = studentGroups[i][1];
+        const index = groups.findIndex((item) => item[1] === group);
+        const topic = groups[index][2];
+        for (var j = 0; j < studentGroups.length; j++) {
+            if (studentGroups[i][1] == studentGroups[j][1] && studentGroups[i][0] != studentGroups[j][0]) {
+                studentList.push(studentGroups[j][0]);
+            }
+        }
+        await functions.sendGroupEmail(studentGroups[i][0], group, topic, studentList);
+    }
+
+    res.redirect("/groups");
+});
+
+app.post("/saveGroups", requireAdmin, async (req, res) => {
     const body = req.body;
     await functions.deleteGroups();
     await functions.deleteStudentGroups();

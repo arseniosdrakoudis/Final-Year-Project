@@ -1,8 +1,9 @@
-const { group } = require("console");
+// const { group } = require("console");
 const crypto = require("crypto");
 const mysql = require("mysql2");
-const { resolve } = require("path");
+// const { resolve } = require("path");
 const nodemailer = require("nodemailer");
+const { send } = require("process");
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -22,7 +23,7 @@ let transporter = nodemailer.createTransport({
     },
 });
 
-async function sendEmail(email, token) {
+async function sendRegistrationEmail(email, token) {
     let info = await transporter.sendMail({
         from: "ad561testuser@gmail.com",
         to: email,
@@ -32,6 +33,21 @@ async function sendEmail(email, token) {
         to register to the group allocation platform</br>
         After you register you can access the platform from 
         <a href="http://localhost:3000/"> http://localhost:3000/ </a>`,
+    });
+}
+
+async function sendGroupEmail(email, group, topic, students) {
+    var studentList = "";
+    for (var i = 0; i < students.length; i++) {
+        studentList = studentList + students[i] + `</br>`;
+    }
+
+    let info = await transporter.sendMail({
+        from: "ad561testuser@gmail.com",
+        to: email,
+        subject: "Your Group",
+        html: `Dear Student, </br></br> Your Group name is "${group}" with topic "${topic}"
+        </br>your groupmates are: </br> ${studentList}`,
     });
 }
 
@@ -931,9 +947,10 @@ module.exports = {
     generateToken: generateToken,
     getRegistered: getRegistered,
     insertRegister: insertRegister,
-    sendEmail: sendEmail,
+    sendRegistrationEmail: sendRegistrationEmail,
     deleteStudent: deleteStudent,
     deleteRegister: deleteRegister,
     getRegisteredWithToken: getRegisteredWithToken,
     insertStudent: insertStudent,
+    sendGroupEmail: sendGroupEmail,
 };

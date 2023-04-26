@@ -46,7 +46,7 @@ async function sendGroupEmail(email, group, topic, students) {
         from: "ad561testuser@gmail.com",
         to: email,
         subject: "Your Group",
-        html: `Dear Student, </br></br> Your Group name is "${group}" with topic "${topic}"
+        html: `Dear Student, </br>Your Group name is "${group}" with topic "${topic}"
         </br>your groupmates are: </br> ${studentList}`,
     });
 }

@@ -62,6 +62,15 @@
                                 <option value="<%= topic %>" <% if (group[2] === topic) { %> selected <% } %>><%= topic %> </option> 
                                 <% } %>
                             </select>
+
+                            <select
+                                id="<%= group[1] %>_supervisor"
+                                class="tableTitle"
+                                name="supervisor">
+                                <% for (const supervisor of supervisors) { %>
+                                <option value="<%= supervisor %>" <% if (group[3] === supervisor) { %> selected <% } %>><%= supervisor %> </option> 
+                                <% } %>
+                            </select>
                             <button
                                 id="delete <%= group[1] %>"
                                 onclick="deleteTable(event)"

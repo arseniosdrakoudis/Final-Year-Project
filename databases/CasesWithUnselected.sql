@@ -13,7 +13,7 @@ CREATE TABLE `User` (
 DROP TABLE IF EXISTS `Register`;
 CREATE TABLE `Register`(
 	email VARCHAR(100),
-    token VARCHAR(64)
+    token VARCHAR(128)
 );
 
 
@@ -31,6 +31,13 @@ CREATE TABLE `Selection`(
     choice SMALLINT
 );
 
+DROP TABLE IF EXISTS `Supervisor_Selection`;
+CREATE TABLE `Supervisor_Selection`(
+	supervisor VARCHAR(100),
+    topic VARCHAR(100),
+    choice SMALLINT
+);
+
 DROP TABLE IF EXISTS `Group`;
 CREATE TABLE `Group`(
 	id SMALLINT,
@@ -44,6 +51,11 @@ CREATE TABLE `Student_Group`(
     `group` VARCHAR(100)
 );
 
+DROP TABLE IF EXISTS `Supervisor_Group`;
+CREATE TABLE `Supervisor_Group`(
+	supervisor VARCHAR(100),
+    `group` VARCHAR(100)
+);
 
 /*
 Admin: 		admin@leicester.ac.uk 		password:admin1234%
@@ -55,6 +67,8 @@ Users: 		test1@student.le.ac.uk  	password:test1234%
 */
 INSERT INTO User VALUES
 ('admin@leicester.ac.uk','7c2761f969cefc416bc5287f8d3d5e29ef5aad5bfe88da393c9410539713391b','admin'),
+('super1@leicester.ac.uk','7c2761f969cefc416bc5287f8d3d5e29ef5aad5bfe88da393c9410539713391b','super'),
+('super2@leicester.ac.uk','7c2761f969cefc416bc5287f8d3d5e29ef5aad5bfe88da393c9410539713391b','super'),
 ('test1@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student'),
 ('test2@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student'),
 ('test3@student.le.ac.uk','83808955f2b94011bf1c6006b7802e117444d8cb9f66e152f243d119efbd2e12','student'),

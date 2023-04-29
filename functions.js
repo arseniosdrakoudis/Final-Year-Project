@@ -1,4 +1,5 @@
 // const { group } = require("console");
+const { group } = require("console");
 const crypto = require("crypto");
 const mysql = require("mysql2");
 // const { resolve } = require("path");
@@ -184,6 +185,31 @@ async function getStudents() {
         console.error(error);
     }
     return user;
+}
+
+function fetchSupervisors() {
+    return new Promise(async (resolve, reject) => {
+        const query = `SELECT email FROM User WHERE role = 'super'`;
+        connection.query(query, (error, results) => {
+            if (error) {
+                console.log("error");
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function getSupervisor() {
+    let user;
+    try {
+        user = await fetchSupervisors();
+    } catch (error) {
+        console.error(error);
+    }
+    const arr = user.map((item) => item.email);
+    return arr;
 }
 
 function fetchRegistered() {
@@ -412,6 +438,31 @@ async function getStudentGroups() {
     return studentGroupsArray;
 }
 
+function fetchSupervisorGroups() {
+    return new Promise((resolve, reject) => {
+        const query = "SELECT * FROM Supervisor_Group";
+        connection.query(query, (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function getSupervisorGroups() {
+    let groups;
+    try {
+        groups = await fetchSupervisorGroups();
+    } catch (error) {
+        console.error(error);
+    }
+    const supervisors = groups.map(({ supervisor, group }) => [supervisor, group]);
+
+    return supervisors;
+}
+
 function fetchSelections(studentEmail) {
     return new Promise((resolve, reject) => {
         const query = `SELECT topic, choice FROM Selection WHERE student = '${studentEmail}' ORDER BY choice ASC`;
@@ -435,6 +486,53 @@ async function getSelections(studentEmail) {
     return selections;
 }
 
+function fetchSuperSelections(studentEmail) {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT topic, choice FROM Supervisor_Selection WHERE supervisor = '${studentEmail}' ORDER BY choice ASC`;
+        connection.query(query, (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function getSuperSelections(studentEmail) {
+    let selections;
+    try {
+        selections = await fetchSuperSelections(studentEmail);
+    } catch (error) {
+        console.error(error);
+    }
+    return selections;
+}
+
+function fetchSupervisorSelections() {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT * FROM Supervisor_Selection ORDER BY choice ASC`;
+        connection.query(query, (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function getSupervisorSelections() {
+    let selections;
+    try {
+        selections = await fetchSupervisorSelections();
+    } catch (error) {
+        console.error(error);
+    }
+    const arr = selections.map((obj) => [obj.supervisor, obj.topic, obj.choice]);
+    return arr;
+}
+
 function deleteSelectionsFromDatabse(id) {
     return new Promise((resolve, reject) => {
         const query = `DELETE FROM Selection WHERE student = '${id}'`;
@@ -451,6 +549,27 @@ function deleteSelectionsFromDatabse(id) {
 async function deleteSelections(id) {
     try {
         const results = await deleteSelectionsFromDatabse(id);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function deleteSuperSelectionsFromDatabse(id) {
+    return new Promise((resolve, reject) => {
+        const query = `DELETE FROM Supervisor_Selection WHERE supervisor = '${id}'`;
+        connection.query(query, (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function deleteSuperSelections(id) {
+    try {
+        const results = await deleteSuperSelectionsFromDatabse(id);
     } catch (error) {
         console.error(error);
     }
@@ -498,6 +617,27 @@ async function deleteStudentGroups() {
     }
 }
 
+function deleteSupervisorGroupsFromDatabse() {
+    return new Promise((resolve, reject) => {
+        const query = `DELETE FROM Supervisor_Group`;
+        connection.query(query, (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function deleteSupervisorGroups() {
+    try {
+        const results = await deleteSupervisorGroupsFromDatabse();
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 function insertSelectionsInDatabse(id, selections) {
     return new Promise((resolve, reject) => {
         for (const [key, value] of selections) {
@@ -518,6 +658,31 @@ function insertSelectionsInDatabse(id, selections) {
 async function insertSelections(id, selections) {
     try {
         await insertSelectionsInDatabse(id, selections);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function insertSuperSelectionsInDatabse(id, selections) {
+    return new Promise((resolve, reject) => {
+        for (const [key, value] of selections) {
+            if (value !== "-") {
+                const query = `INSERT INTO Supervisor_Selection VALUES (?,?,?)`;
+                connection.query(query, [id, key, value], (error, results) => {
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                });
+            }
+        }
+        resolve();
+    });
+}
+
+async function insertSuperSelections(id, selections) {
+    try {
+        await insertSuperSelectionsInDatabse(id, selections);
     } catch (error) {
         console.error(error);
     }
@@ -636,6 +801,28 @@ async function insertStudentToGroup(student, group) {
         console.error(error);
     }
 }
+
+function insertSuperToGroupInDatabse(student, group) {
+    return new Promise((resolve, reject) => {
+        const query = `INSERT INTO Supervisor_Group VALUES (?,?)`;
+        connection.query(query, [student, group], (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+        });
+        resolve();
+    });
+}
+
+async function insertSuperToGroup(student, group) {
+    try {
+        await insertSuperToGroupInDatabse(student, group);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function findStudentWithAlternativeForTopic(choicesPerTopic, selectedStudents, studentChoices, topic) {
     let studentsWithTopic = [];
     for (var i = 0; i < selectedStudents.length; i++) {
@@ -921,6 +1108,25 @@ async function allocate(selectedStudents, unselectedStudents) {
             }
         }
     }
+    groups = await getGroups();
+    const superSelec = await getSupervisorSelections();
+    const supervisors = await getSupervisor();
+    for (let i = 0; i < groups.length; i++) {
+        let choice = 10;
+        let sup = "";
+        for (let j = 0; j < superSelec.length; j++) {
+            if (superSelec[j][1] == groups[i][2] && superSelec[j][2] < choice) {
+                choice = superSelec[j][2];
+                sup = superSelec[j][1];
+            }
+        }
+        if (choice == 10) {
+            const randomIndex = Math.floor(Math.random() * supervisors.length);
+            await insertSuperToGroup(supervisors[randomIndex], groups[i][1]);
+        } else {
+            await insertSuperToGroup(sup, groups[i][1]);
+        }
+    }
 }
 
 module.exports = {
@@ -953,4 +1159,11 @@ module.exports = {
     getRegisteredWithToken: getRegisteredWithToken,
     insertStudent: insertStudent,
     sendGroupEmail: sendGroupEmail,
+    getSuperSelections: getSuperSelections,
+    deleteSuperSelections: deleteSuperSelections,
+    insertSuperSelections: insertSuperSelections,
+    getSupervisorGroups: getSupervisorGroups,
+    getSupervisor: getSupervisor,
+    deleteSupervisorGroups: deleteSupervisorGroups,
+    insertSuperToGroup: insertSuperToGroup,
 };

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor</title>
+    <link rel="stylesheet" type="text/css" href="/site.css">
+    <script src="/supervisor.js"></script>
+</head>
+
+<body>
+    <div class="center">
+        <h1>Select Topics</h1>
+        <form action="/supervisor" method="post">
+            <table id="tb">
+                <tbody>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Choice</th>
+                    </tr>
+                    <% topics.forEach(function(topic) { %>
+                        <tr>
+                            <td>
+                                <%= topic.name %>
+                            </td>
+                            <td>
+                                <select id="<%= topic.name %>" name="<%= topic.name %>"
+                                    onchange="updateDropdownBoxes(this)">
+                                    <option value="-">-</option>
+                                    <% for (let i=1; i <=3; i++) { %>
+                                        <option value="<%= i %>" <%=(selections.find(selection=> selection.topic ===
+                                            topic.name)&& selections.find(selection => selection.topic ===
+                                            topic.name).choice === i) ? 'selected' : '' %> <%=
+                                                selectedNumbers.includes(i) ? 'disabled' : '' %>><%= i %>
+                                        </option>
+                                        <% } %>
+                                </select>
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+            <label id="message" style="color: green;">
+                <%= message %>
+            </label>
+            <br>
+            <br>
+            <input type="submit" value="Submit" onclick="return validateSelection()">
+        </form>
+    </div>
+</body>
+</html>

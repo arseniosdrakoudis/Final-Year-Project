@@ -255,6 +255,8 @@ app.get("/groups", async (req, res) => {
 app.get("/emailGroups", async (req, res) => {
     const studentGroups = await getStudentGroups();
     const groups = await getGroups();
+    const supervisorsGroup = await functions.getSupervisorGroups();
+    const supervisors = await functions.getSupervisor();
 
     for (var i = 0; i < studentGroups.length; i++) {
         var studentList = [];
@@ -266,7 +268,29 @@ app.get("/emailGroups", async (req, res) => {
                 studentList.push(studentGroups[j][0]);
             }
         }
-        await functions.sendGroupEmail(studentGroups[i][0], group, topic, studentList);
+        const supervisor = supervisorsGroup.find((elem) => elem[1] === group)[0];
+        // await functions.sendGroupEmail(studentGroups[i][0], group, topic, studentList, supervisor);
+    }
+
+    for (var i = 0; i < supervisors.length; i++) {
+        supervised = [];
+        for (var j = 0; j < supervisorsGroup.length; j++) {
+            var group = "";
+            var topic = "";
+            if (supervisors[i] == supervisorsGroup[j][0]) {
+                group = supervisorsGroup[j][1];
+                const index = groups.findIndex((item) => item[1] === group);
+                const topic = groups[index][2];
+                var studentList = [];
+                for (var k = 0; k < studentGroups.length; k++) {
+                    if (group == studentGroups[k][1]) {
+                        studentList.push(studentGroups[k][0]);
+                    }
+                }
+                supervised.push([group, topic, studentList]);
+            }
+        }
+        await functions.sendSupervisorEmail(supervisors[i], supervised);
     }
 
     res.redirect("/groups");
@@ -274,7 +298,6 @@ app.get("/emailGroups", async (req, res) => {
 
 app.post("/saveGroups", async (req, res) => {
     const body = req.body;
-    console.log(body);
     await functions.deleteGroups();
     await functions.deleteStudentGroups();
     await functions.deleteSupervisorGroups();

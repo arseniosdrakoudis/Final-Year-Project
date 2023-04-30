@@ -37,7 +37,7 @@ async function sendRegistrationEmail(email, token) {
     });
 }
 
-async function sendGroupEmail(email, group, topic, students) {
+async function sendGroupEmail(email, group, topic, students, supervisor) {
     var studentList = "";
     for (var i = 0; i < students.length; i++) {
         studentList = studentList + students[i] + `</br>`;
@@ -48,7 +48,25 @@ async function sendGroupEmail(email, group, topic, students) {
         to: email,
         subject: "Your Group",
         html: `Dear Student, </br>Your Group name is "${group}" with topic "${topic}"
+        </br> your supervisor is ${supervisor},
         </br>your groupmates are: </br> ${studentList}`,
+    });
+}
+
+async function sendSupervisorEmail(email, supervised) {
+    var mail = "Dear Supervisor, </br>Your Groups are as following </br></br>";
+    for (var i = 0; i < supervised.length; i++) {
+        mail = mail + supervised[i][0] + " with topic " + supervised[i][1] + "</br>" + "with students: </br>";
+        for (var j = 0; j < supervised[i][2].length; j++) {
+            mail = mail + supervised[i][2][j] + "</br>";
+        }
+        mail = mail + "</br>";
+    }
+    let info = await transporter.sendMail({
+        from: "ad561testuser@gmail.com",
+        to: email,
+        subject: "Groups You Supervise",
+        html: mail,
     });
 }
 
@@ -1166,4 +1184,5 @@ module.exports = {
     getSupervisor: getSupervisor,
     deleteSupervisorGroups: deleteSupervisorGroups,
     insertSuperToGroup: insertSuperToGroup,
+    sendSupervisorEmail: sendSupervisorEmail,
 };

@@ -269,7 +269,7 @@ app.get("/emailGroups", async (req, res) => {
             }
         }
         const supervisor = supervisorsGroup.find((elem) => elem[1] === group)[0];
-        // await functions.sendGroupEmail(studentGroups[i][0], group, topic, studentList, supervisor);
+        await functions.sendGroupEmail(studentGroups[i][0], group, topic, studentList, supervisor);
     }
 
     for (var i = 0; i < supervisors.length; i++) {
@@ -298,16 +298,19 @@ app.get("/emailGroups", async (req, res) => {
 
 app.post("/saveGroups", async (req, res) => {
     const body = req.body;
+    console.log(body);
     await functions.deleteGroups();
     await functions.deleteStudentGroups();
     await functions.deleteSupervisorGroups();
     const groups = body["group"];
     const supervisors = body["supervisor"];
     const topics = body["topic"];
+    console.log(groups);
     for (let i = 0; i < groups.length; i++) {
         await functions.insertSuperToGroup(supervisors[i], groups[i]);
         await functions.createGroupWithName(groups[i], topics[i]);
         const group = body[groups[i]];
+        console.log(group);
         for (let j = 0; j < group.length; j++) {
             await functions.insertStudentToGroup(group[j], groups[i]);
         }

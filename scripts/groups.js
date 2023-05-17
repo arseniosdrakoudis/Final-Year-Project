@@ -160,7 +160,9 @@ function addNewTable() {
 
     const input = newTable.querySelector("input");
     input.value = newGroupName;
+    input.id = "New_Group";
     const select = newTable.querySelector("select");
+    select.id = "New_group";
 
     const rows = newTable.querySelectorAll("tr");
     for (let i = 1; i < rows.length; i++) {
